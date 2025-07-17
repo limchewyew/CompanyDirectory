@@ -74,15 +74,22 @@ export default function Home() {
   useEffect(() => {
     fetch('/api/companies')
       .then(res => res.json())
-      .then((data: Company[]) => {
-        setCompanies(data);
+      .then((data) => {
+        console.log('Fetched data:', data);
+        if (Array.isArray(data)) {
+          setCompanies(data);
+        } else if (Array.isArray(data?.companies)) {
+          setCompanies(data.companies);
+        } else {
+          setCompanies([]);
+        }
       });
   }, []);
 
   // Unique filter options
-  const countryOptions = Array.from(new Set(companies.map(c => c.country).filter(Boolean)));
-  const industryOptions = Array.from(new Set(companies.map(c => c.industry).filter(Boolean)));
-  const subIndustryOptions = Array.from(new Set(companies.map(c => c.subIndustry).filter(Boolean)));
+  const countryOptions = Array.from(new Set((companies ?? []).map(c => c.country).filter(Boolean)));
+  const industryOptions = Array.from(new Set((companies ?? []).map(c => c.industry).filter(Boolean)));
+  const subIndustryOptions = Array.from(new Set((companies ?? []).map(c => c.subIndustry).filter(Boolean)));
 
   // Filtered options for dropdowns
   const filteredCountryOptions = countryOptions.filter(option => option.toLowerCase().includes(countrySearch.toLowerCase())).sort((a, b) => a.localeCompare(b));

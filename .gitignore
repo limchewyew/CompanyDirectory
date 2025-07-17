@@ -16,6 +16,7 @@ Thumbs.db
 
 # Env files
 .env*
+google-credentials.json
 
 # Misc
 *.local
