@@ -114,8 +114,8 @@ export default function Home() {
 
     if (["history", "brandAwareness", "moat", "size", "innovation", "total"].includes(sortBy)) {
       filtered = [...filtered].sort((a, b) => {
-        const aVal = a[sortBy] ?? 0;
-        const bVal = b[sortBy] ?? 0;
+        const aVal = Number(a[sortBy]) || 0;
+        const bVal = Number(b[sortBy]) || 0;
         return sortOrder === "asc" ? aVal - bVal : bVal - aVal;
       });
     } else if (sortBy === "name") {
