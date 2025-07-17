@@ -4,10 +4,8 @@ import { promises as fs } from 'fs';
 import path from 'path';
 
 export async function GET() {
-  // Path to your credentials file (at the root of your project)
-  // Use absolute path for credentials
-  const credentialsPath = 'C:/Users/user/Desktop/Trial/Company Database - Copy/google-credentials.json';
-  const credentials = JSON.parse(await fs.readFile(credentialsPath, 'utf8'));
+  // Load credentials from environment variable
+  const credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS!);
 
   const auth = new google.auth.GoogleAuth({
     credentials,
