@@ -148,14 +148,13 @@ export default function Home() {
       {/* Header */}
       <header className="bg-gray-100 border-b border-gray-200">
         <div className="px-5 py-3">
-          <h1 className="text-3xl font-light text-gray-500 uppercase tracking-wider ml-1"> </h1>
         </div>
       </header>
 
       {/* Search Bar */}
       <div className="bg-white shadow-sm border-b">
-        <div className="w-11/12 mx-auto px-6 py-2">
-          <div className="flex items-center justify-between">
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex flex-wrap items-start gap-4 mt-4 justify-between mb-4 sm:mb-6">
             <p className="text-3xl text-gray-600">Company Directory</p>
             <div className="flex items-center space-x-4">
               <button
@@ -170,8 +169,8 @@ export default function Home() {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <input
                   type="text"
+                  className="border rounded px-3 py-2 w-64 max-w-full focus:outline-none focus:border-blue-400 text-sm"
                   placeholder="Search companies..."
-                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -182,7 +181,7 @@ export default function Home() {
           {showFilterBar && (
             <div className="flex flex-wrap items-start gap-4 mt-4 z-10 p-4 bg-gray-50 border border-gray-200 rounded-lg animate-fade-in">
               {/* Filter dropdowns */}
-              <div className="flex flex-wrap gap-4 flex-1">
+              <div className="flex flex-wrap gap-4 items-center mb-4">
                 {/* Total Min/Max Filter */}
                 <div className="flex flex-col justify-end min-w-[170px]">
                   <label className="block font-sans text-xs text-gray-500 mb-1">Total Range</label>
@@ -386,7 +385,7 @@ export default function Home() {
       </div>
 
       {/* Stats */}
-      <div className="w-11/12 mx-auto px-6 py-6">
+      <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-white p-6 rounded-lg shadow-sm">
             <div className="flex items-center">
@@ -423,49 +422,49 @@ export default function Home() {
 
         {/* Table */}
         <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="min-w-11/12 divide-y divide-gray-200 table-auto">
+          <div className="overflow-x-auto rounded shadow">
+            <table className="min-w-full bg-white border border-gray-200">
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
                   <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider sticky left-0 z-10 bg-white">Logo</th>
                   <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider sticky left-16 z-10 bg-white">Name</th>
                   <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[32rem]">Description</th>
-                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Website</th>
-                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Country</th>
-                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Industry</th>
-                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Sub-Industry</th>
-                  <th className="px-4 py-3 w-24 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none" onClick={() => {
+                  <th className="px-4 py-2 whitespace-nowrap text-sm text-center">Website</th>
+                  <th className="px-4 py-2 whitespace-nowrap text-sm text-center">Country</th>
+                  <th className="px-4 py-2 whitespace-nowrap text-sm text-center">Industry</th>
+                  <th className="px-4 py-2 whitespace-nowrap text-sm text-center">Sub-Industry</th>
+                  <th className="px-2 sm:px-4 py-2 w-20 sm:w-24 whitespace-nowrap text-xs sm:text-sm text-center cursor-pointer select-none" onClick={() => {
                     setSortBy('history');
                     setSortOrder(sortBy === 'history' && sortOrder === 'asc' ? 'desc' : 'asc');
                   }}>
                     History {sortBy === 'history' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
                   </th>
-                  <th className="px-4 py-3 w-24 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none" onClick={() => {
+                  <th className="px-2 sm:px-4 py-2 w-20 sm:w-24 whitespace-nowrap text-xs sm:text-sm text-center cursor-pointer select-none" onClick={() => {
                     setSortBy('brandAwareness');
                     setSortOrder(sortBy === 'brandAwareness' && sortOrder === 'asc' ? 'desc' : 'asc');
                   }}>
                     Brand Awareness {sortBy === 'brandAwareness' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
                   </th>
-                  <th className="px-4 py-3 w-24 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none" onClick={() => {
+                  <th className="px-2 sm:px-4 py-2 w-20 sm:w-24 whitespace-nowrap text-xs sm:text-sm text-center cursor-pointer select-none" onClick={() => {
                     setSortBy('moat');
                     setSortOrder(sortBy === 'moat' && sortOrder === 'asc' ? 'desc' : 'asc');
                   }}>
                     Moat {sortBy === 'moat' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
                   </th>
-                  <th className="px-4 py-3 w-24 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none" onClick={() => {
+                  <th className="px-2 sm:px-4 py-2 w-20 sm:w-24 whitespace-nowrap text-xs sm:text-sm text-center cursor-pointer select-none" onClick={() => {
                     setSortBy('size');
                     setSortOrder(sortBy === 'size' && sortOrder === 'asc' ? 'desc' : 'asc');
                   }}>
                     Size {sortBy === 'size' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
                   </th>
-                  <th className="px-4 py-3 w-24 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none" onClick={() => {
+                  <th className="px-2 sm:px-4 py-2 w-20 sm:w-24 whitespace-nowrap text-xs sm:text-sm text-center cursor-pointer select-none" onClick={() => {
                     setSortBy('innovation');
                     setSortOrder(sortBy === 'innovation' && sortOrder === 'asc' ? 'desc' : 'asc');
                   }}>
                     Innovation {sortBy === 'innovation' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
                   </th>
-                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none" onClick={() => {
+                  <th className="px-2 sm:px-4 py-2 whitespace-nowrap text-xs sm:text-sm text-center cursor-pointer select-none" onClick={() => {
                     setSortBy('total');
                     setSortOrder(sortBy === 'total' && sortOrder === 'asc' ? 'desc' : 'asc');
                   }}>
@@ -474,7 +473,7 @@ export default function Home() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                 {/* Compute min/max for total and color mapping */}
+                {/* Compute min/max for total and color mapping */}
                 {(() => {
                   const totals = filteredCompanies.map(c => c.total);
                   const minTotal = Math.min(...totals);
@@ -494,7 +493,7 @@ export default function Home() {
                   return paginatedCompanies.map((company, index) => (
                     <tr key={company.id} className="hover:bg-gray-50">
                       <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900 text-center">{startIdx + index + 1}</td>
-                      <td className="px-4 py-2 whitespace-nowrap text-center sticky left-0 bg-white z-10">
+                      <td className="px-2 sm:px-4 py-2 whitespace-nowrap text-center sticky left-0 bg-white z-10">
                         <img
                           className="h-10 w-10 rounded-full mx-auto object-contain bg-white"
                           style={{ objectFit: 'contain', width: '40px', height: '40px', borderRadius: '9999px', background: 'white' }}
