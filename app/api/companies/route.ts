@@ -43,7 +43,13 @@ export async function GET() {
       website: row[11] || '',
       logo: row[12] || ''
     }));
-    return NextResponse.json(companies);
+    return new NextResponse(JSON.stringify(companies), {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-store, max-age=0',
+      },
+    });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
