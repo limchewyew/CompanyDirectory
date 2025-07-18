@@ -1,22 +1,10 @@
 export const dynamic = "force-dynamic";
 
-import React, { useState, useEffect } from 'react'
-import { Search, TrendingUp, TrendingDown, Building2, Globe, DollarSign, Star, Filter as FilterIcon } from 'lucide-react'
+import ClientHome from "./ClientHome";
 
-interface Company {
-  id: number
-  name: string
-  description: string
-  country: string
-  industry: string
-  subIndustry: string
-  history: number
-  brandAwareness: number
-  moat: number
-  size: number
-  innovation: number
-  total: number
-  website: string
+export default function HomePage() {
+  return <ClientHome />;
+}
   logo: string
 }
 
