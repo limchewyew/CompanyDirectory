@@ -3,6 +3,8 @@ import { NextResponse } from 'next/server';
 import { promises as fs } from 'fs';
 import path from 'path';
 
+export const dynamic = 'force-dynamic'; // Prevent static optimization
+
 export async function GET() {
   // Load credentials from environment variable
   const credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS!);
