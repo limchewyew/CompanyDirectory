@@ -7,8 +7,8 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Companies Market Cap Directory',
-  description: 'List of the world\'s biggest companies by market capitalization',
+  title: 'Companies Directory',
+  description: 'Search, Screen and Explore',
   keywords: 'market cap, companies, stocks, valuation, finance',
 }
 
