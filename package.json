@@ -9,7 +9,6 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@vercel/analytics": "^1.5.0",
     "googleapis": "^152.0.0",
     "lucide-react": "^0.263.1",
     "next": "14.0.0",
