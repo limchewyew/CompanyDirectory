@@ -144,7 +144,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 ml-16">
       {/* Header */}
       <header className="bg-gray-100 border-b border-gray-200">
         <div className="px-5 py-3">
