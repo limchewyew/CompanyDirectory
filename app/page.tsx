@@ -1,5 +1,7 @@
 'use client'
 
+export const dynamic = "force-dynamic";
+
 import React, { useState, useEffect } from 'react'
 import { Search, TrendingUp, TrendingDown, Building2, Globe, DollarSign, Star, Filter as FilterIcon } from 'lucide-react'
 
