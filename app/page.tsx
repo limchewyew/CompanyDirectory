@@ -69,6 +69,7 @@ export default function Home() {
 
   // Filter bar visibility
   const [showFilterBar, setShowFilterBar] = useState(false);
+  const [randomCount, setRandomCount] = useState(0);
 
   // Fetch companies from API on mount
   useEffect(() => {
@@ -97,6 +98,7 @@ export default function Home() {
   const filteredSubIndustryOptions = subIndustryOptions.filter(option => option.toLowerCase().includes(subIndustrySearch.toLowerCase())).sort((a, b) => a.localeCompare(b));
 
   useEffect(() => {
+    // First apply all filters
     let filtered = companies.filter(company => {
       const matchesSearch =
         company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -109,9 +111,18 @@ export default function Home() {
       const matchesSubIndustry = subIndustryFilter.length > 0 ? subIndustryFilter.includes(company.subIndustry) : true;
       const matchesTotalMin = totalMin !== '' ? company.total >= Number(totalMin) : true;
       const matchesTotalMax = totalMax !== '' ? company.total <= Number(totalMax) : true;
+      
       return matchesSearch && matchesCountry && matchesIndustry && matchesSubIndustry && matchesTotalMin && matchesTotalMax;
     });
 
+    // Apply random count filter after other filters if randomCount is set
+    if (randomCount > 0) {
+      // Shuffle the array and take first N items
+      const shuffled = [...filtered].sort(() => 0.5 - Math.random());
+      filtered = shuffled.slice(0, randomCount);
+    }
+
+    // Then apply sorting
     if (["history", "brandAwareness", "moat", "size", "innovation", "total"].includes(sortBy)) {
       filtered = [...filtered].sort((a, b) => {
         const aVal = Number(a[sortBy]) || 0;
@@ -127,6 +138,7 @@ export default function Home() {
     }
 
     setFilteredCompanies(filtered);
+
   }, [searchTerm, sortBy, sortOrder, companies, countryFilter, industryFilter, subIndustryFilter, totalMin, totalMax]);
 
   
@@ -158,14 +170,34 @@ export default function Home() {
           <div className="flex items-center justify-between">
             <p className="text-3xl text-gray-600">Company Directory</p>
             <div className="flex items-center space-x-4">
-              <button
-                type="button"
-                className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 border border-gray-300 mr-2"
-                aria-label="Show filters"
-                onClick={() => setShowFilterBar(v => !v)}
-              >
-                <FilterIcon className={`h-5 w-5 ${showFilterBar ? 'text-blue-600' : 'text-gray-500'}`} />
-              </button>
+              <div className="flex items-center space-x-2">
+                <button
+                  type="button"
+                  className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 border border-gray-300"
+                  aria-label="Show filters"
+                  onClick={() => {
+                    setShowFilterBar(v => !v);
+                    setRandomCount(0); // Reset random count when opening filters
+                  }}
+                >
+                  <FilterIcon className={`h-5 w-5 ${showFilterBar ? 'text-blue-600' : 'text-gray-500'}`} />
+                </button>
+                <button
+                  type="button"
+                  className="flex items-center px-3 py-2 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-full text-sm font-medium transition-colors"
+                  onClick={() => {
+                    const count = Math.max(1, Math.floor(Math.random() * 10) + 1); // Random number between 1-10
+                    setRandomCount(count);
+                    setShowFilterBar(false); // Close filter bar when using surprise me
+                  }}
+                >
+                  <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a8 8 0 01-16 0 8 8 0 0116 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 01-6 0 3 3 0 016 0z" />
+                  </svg>
+                  Surprise Me
+                </button>
+              </div>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <input
