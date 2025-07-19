@@ -473,7 +473,15 @@ export default function Home() {
                 <tr>
                   <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
                   <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider sticky left-0 z-10 bg-white">Logo</th>
-                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider sticky left-16 z-10 bg-white">Name</th>
+                  <th 
+                    className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider sticky left-16 z-10 bg-white cursor-pointer select-none" 
+                    onClick={() => {
+                      setSortBy('name');
+                      setSortOrder(sortBy === 'name' && sortOrder === 'asc' ? 'desc' : 'asc');
+                    }}
+                  >
+                    Name {sortBy === 'name' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
+                  </th>
                   <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[32rem]">Description</th>
                   <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Website</th>
                   <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Country</th>
@@ -551,10 +559,16 @@ export default function Home() {
                       </td>
                       <td className="px-4 py-2 whitespace-nowrap text-sm text-center sticky left-16 bg-white z-10">{company.name}</td>
                       <td className="px-4 py-2 whitespace-normal text-sm text-left break-words min-w-[32rem]">{company.description}</td>
-                      <td className="px-4 py-2 whitespace-nowrap text-sm text-center">
+                      <td className="px-4 py-2 whitespace-nowrap text-center">
                         {company.website ? (
-                          <a href={company.website.startsWith('http') ? company.website : `https://${company.website}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">
-                            {company.website}
+                          <a 
+                            href={company.website.startsWith('http') ? company.website : `https://${company.website}`} 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            className="text-blue-600 hover:text-blue-800 text-lg"
+                            title={company.website}
+                          >
+                            🔗
                           </a>
                         ) : '-'}
                       </td>
