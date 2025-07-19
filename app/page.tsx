@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Search, TrendingUp, TrendingDown, Building2, Globe, DollarSign, Star, Filter as FilterIcon } from 'lucide-react'
 
 interface Company {
@@ -70,6 +70,7 @@ export default function Home() {
   // Filter bar visibility
   const [showFilterBar, setShowFilterBar] = useState(false);
   const [randomCount, setRandomCount] = useState(0);
+  const randomIndexRef = useRef<number | null>(null);
 
   // Fetch companies from API on mount
   useEffect(() => {
@@ -115,11 +116,23 @@ export default function Home() {
       return matchesSearch && matchesCountry && matchesIndustry && matchesSubIndustry && matchesTotalMin && matchesTotalMax;
     });
 
-    // Apply random count filter after other filters if randomCount is set
-    if (randomCount > 0) {
-      // Shuffle the array and take first N items
-      const shuffled = [...filtered].sort(() => 0.5 - Math.random());
-      filtered = shuffled.slice(0, randomCount);
+    // Apply random company selection if randomCount is set
+    if (randomCount > 0 && filtered.length > 0) {
+      // Generate a new random index
+      let randomIndex = Math.floor(Math.random() * filtered.length);
+      
+      // If there's more than one company and we got the same index as last time, get a different one
+      if (filtered.length > 1 && randomIndexRef.current === randomIndex) {
+        randomIndex = (randomIndex + 1) % filtered.length;
+      }
+      
+      // Store the current index for next time
+      randomIndexRef.current = randomIndex;
+      
+      // Return just the one random company
+      if (filtered[randomIndex]) {
+        filtered = [filtered[randomIndex]];
+      }
     }
 
     // Then apply sorting
@@ -186,8 +199,7 @@ export default function Home() {
                   type="button"
                   className="flex items-center px-3 py-2 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-full text-sm font-medium transition-colors whitespace-nowrap"
                   onClick={() => {
-                    const count = 1; // Always show exactly 1 random company
-                    setRandomCount(count);
+                    setRandomCount(prev => prev + 1); // Increment to trigger re-render
                     setShowFilterBar(false); // Close filter bar when using surprise me
                   }}
                 >
