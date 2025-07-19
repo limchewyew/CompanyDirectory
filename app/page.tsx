@@ -478,7 +478,6 @@ export default function Home() {
                   <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Website</th>
                   <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Country</th>
                   <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Industry</th>
-                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Sub-Industry</th>
                   <th className="px-4 py-3 w-24 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none" onClick={() => {
                     setSortBy('history');
                     setSortOrder(sortBy === 'history' && sortOrder === 'asc' ? 'desc' : 'asc');
@@ -560,8 +559,10 @@ export default function Home() {
                         ) : '-'}
                       </td>
                       <td className="px-4 py-2 whitespace-nowrap text-sm text-center">{company.country}</td>
-                      <td className="px-4 py-2 whitespace-nowrap text-sm text-center">{company.industry}</td>
-                      <td className="px-4 py-2 whitespace-nowrap text-sm text-center">{company.subIndustry}</td>
+                      <td className="px-4 py-2 whitespace-nowrap text-sm text-center">
+                        <div className="font-medium">{company.industry}</div>
+                        <div className="text-xs text-gray-500 mt-1">{company.subIndustry}</div>
+                      </td>
                       <td className="px-4 py-2 w-24 whitespace-nowrap text-sm text-center">{company.history}</td>
                       <td className="px-4 py-2 w-24 whitespace-nowrap text-sm text-center">{company.brandAwareness}</td>
                       <td className="px-4 py-2 w-24 whitespace-nowrap text-sm text-center">{company.moat}</td>
