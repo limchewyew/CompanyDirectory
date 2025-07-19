@@ -139,7 +139,7 @@ export default function Home() {
 
     setFilteredCompanies(filtered);
 
-  }, [searchTerm, sortBy, sortOrder, companies, countryFilter, industryFilter, subIndustryFilter, totalMin, totalMax]);
+  }, [searchTerm, sortBy, sortOrder, companies, countryFilter, industryFilter, subIndustryFilter, totalMin, totalMax, randomCount]);
 
   
 
@@ -184,9 +184,9 @@ export default function Home() {
                 </button>
                 <button
                   type="button"
-                  className="flex items-center px-3 py-2 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-full text-sm font-medium transition-colors"
+                  className="flex items-center px-3 py-2 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-full text-sm font-medium transition-colors whitespace-nowrap"
                   onClick={() => {
-                    const count = Math.max(1, Math.floor(Math.random() * 10) + 1); // Random number between 1-10
+                    const count = 1; // Always show exactly 1 random company
                     setRandomCount(count);
                     setShowFilterBar(false); // Close filter bar when using surprise me
                   }}
