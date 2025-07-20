@@ -126,12 +126,13 @@ export default function Home() {
   useEffect(() => {
     // First apply all filters
     let filtered = companies.filter(company => {
-      const matchesSearch =
+      const matchesSearch = 
         company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         company.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
         company.country.toLowerCase().includes(searchTerm.toLowerCase()) ||
         company.industry.toLowerCase().includes(searchTerm.toLowerCase()) ||
         company.subIndustry.toLowerCase().includes(searchTerm.toLowerCase());
+      
       const matchesCountry = countryFilter.length > 0 ? countryFilter.includes(company.country) : true;
       const matchesIndustry = industryFilter.length > 0 ? industryFilter.includes(company.industry) : true;
       const matchesSubIndustry = subIndustryFilter.length > 0 ? subIndustryFilter.includes(company.subIndustry) : true;
@@ -179,7 +180,39 @@ export default function Home() {
 
   }, [searchTerm, sortBy, sortOrder, companies, countryFilter, industryFilter, subIndustryFilter, totalMin, totalMax, randomCount]);
 
-  
+  useEffect(() => {
+    // First apply all filters
+    let filtered = companies.filter(company => {
+      const matchesSearch = 
+        company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        company.description.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      const matchesCountry = countryFilter.length === 0 || countryFilter.includes(company.country);
+      const matchesIndustry = industryFilter.length === 0 || industryFilter.includes(company.industry);
+      const matchesSubIndustry = subIndustryFilter.length === 0 || subIndustryFilter.includes(company.subIndustry);
+      
+      const matchesTotal = 
+        (totalMin === '' || company.total >= parseFloat(totalMin)) &&
+        (totalMax === '' || company.total <= parseFloat(totalMax));
+      
+      return matchesSearch && matchesCountry && matchesIndustry && matchesSubIndustry && matchesTotal;
+    });
+    
+    // Then sort
+    filtered.sort((a, b) => {
+      if (sortBy === 'name') {
+        return sortOrder === 'asc' 
+          ? a.name.localeCompare(b.name)
+          : b.name.localeCompare(a.name);
+      }
+      return sortOrder === 'asc' 
+        ? a[sortBy] - b[sortBy]
+        : b[sortBy] - a[sortBy];
+    });
+    
+    setFilteredCompanies(filtered);
+    setCurrentPage(1); // Reset to first page whenever filters change
+  }, [companies, searchTerm, countryFilter, industryFilter, subIndustryFilter, totalMin, totalMax, sortBy, sortOrder]);
 
   // Clear all filters handler
   const handleClearAllFilters = () => {
