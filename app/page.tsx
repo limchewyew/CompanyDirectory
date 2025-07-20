@@ -3,6 +3,21 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Search, TrendingUp, TrendingDown, Building2, Globe, DollarSign, Star, Filter as FilterIcon } from 'lucide-react'
 
+// Add this custom hook for click-outside detection
+const useClickOutside = (ref: React.RefObject<HTMLElement>, callback: () => void) => {
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (ref.current && !ref.current.contains(event.target as Node)) {
+        callback()
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [ref, callback])
+}
+
 interface Company {
   id: number
   name: string
@@ -71,6 +86,16 @@ export default function Home() {
   const [showFilterBar, setShowFilterBar] = useState(false);
   const [randomCount, setRandomCount] = useState(0);
   const randomIndexRef = useRef<number | null>(null);
+
+  // Add refs for dropdown containers
+  const countryDropdownRef = useRef<HTMLDivElement>(null);
+  const industryDropdownRef = useRef<HTMLDivElement>(null);
+  const subIndustryDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Add click-outside handlers
+  useClickOutside(countryDropdownRef, () => setOpenCountry(false));
+  useClickOutside(industryDropdownRef, () => setOpenIndustry(false));
+  useClickOutside(subIndustryDropdownRef, () => setOpenSubIndustry(false));
 
   // Fetch companies from API on mount
   useEffect(() => {
@@ -251,7 +276,7 @@ export default function Home() {
                   </div>
                 </div>
                 {/* Country Multi-select */}
-                <div className="relative min-w-[150px]">
+                <div className="relative min-w-[150px]" ref={countryDropdownRef}>
                   <label className="block font-sans text-xs text-gray-500 mb-1">Country</label>
                   <div
                     className="border border-gray-300 rounded px-2 py-1 text-sm bg-white cursor-pointer flex flex-wrap gap-1 min-h-[36px] items-center"
@@ -305,7 +330,7 @@ export default function Home() {
                   )}
                 </div>
                 {/* Industry Multi-select */}
-                <div className="relative min-w-[150px]">
+                <div className="relative min-w-[150px]" ref={industryDropdownRef}>
                   <label className="block font-sans text-xs text-gray-500 mb-1">Industry</label>
                   <div
                     className="border border-gray-300 rounded px-2 py-1 text-sm bg-white cursor-pointer flex flex-wrap gap-1 min-h-[36px] items-center"
@@ -359,7 +384,7 @@ export default function Home() {
                   )}
                 </div>
                 {/* Subsector Multi-select */}
-                <div className="relative min-w-[150px]">
+                <div className="relative min-w-[150px]" ref={subIndustryDropdownRef}>
                   <label className="block font-sans text-xs text-gray-500 mb-1">Subsector</label>
                   <div
                     className="border border-gray-300 rounded px-2 py-1 text-sm bg-white cursor-pointer flex flex-wrap gap-1 min-h-[36px] items-center"
