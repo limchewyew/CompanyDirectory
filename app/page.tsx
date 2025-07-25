@@ -490,9 +490,11 @@ export default function Home() {
       {/* Stats */}
       <div className="w-11/12 mx-auto px-6 py-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-lg shadow-sm">
+          <div className="bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
             <div className="flex items-center">
-              <Star className="h-8 w-8 text-yellow-500" />
+              <div className="h-14 w-14 flex items-center justify-center rounded-full bg-gradient-to-br from-yellow-200 via-yellow-400 to-yellow-600 shadow-lg border border-yellow-300">
+                <Star className="h-8 w-8 text-yellow-500 drop-shadow-[0_2px_4px_rgba(0,0,0,0.15)]" />
+              </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Average Total Score</p>
                 <p className="text-2xl font-bold text-gray-900">
@@ -501,18 +503,22 @@ export default function Home() {
               </div>
             </div>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow-sm">
+          <div className="bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
             <div className="flex items-center">
-              <Building2 className="h-8 w-8 text-blue-600" />
+              <div className="h-14 w-14 flex items-center justify-center rounded-full bg-gradient-to-br from-blue-200 via-blue-400 to-blue-600 shadow-lg border border-blue-300">
+                <Building2 className="h-8 w-8 text-blue-600 drop-shadow-[0_2px_4px_rgba(0,0,0,0.15)]" />
+              </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Total Companies</p>
                 <p className="text-2xl font-bold text-gray-900">{filteredCompanies.length.toLocaleString()}</p>
               </div>
             </div>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow-sm">
+          <div className="bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
             <div className="flex items-center">
-              <Globe className="h-8 w-8 text-purple-600" />
+              <div className="h-14 w-14 flex items-center justify-center rounded-full bg-gradient-to-br from-purple-200 via-purple-400 to-purple-600 shadow-lg border border-purple-300">
+                <Globe className="h-8 w-8 text-purple-600 drop-shadow-[0_2px_4px_rgba(0,0,0,0.15)]" />
+              </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Countries</p>
                 <p className="text-2xl font-bold text-gray-900">
