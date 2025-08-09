@@ -17,7 +17,7 @@ export async function GET() {
   const sheets = google.sheets({ version: 'v4', auth });
 
   const spreadsheetId = '1Be3uWps2Y3DUaIIldVVvhHlThzt__dgw7pdaMb68AxU';
-  const range = 'Database!A:M';
+  const range = 'Database!A:O';
 
   try {
     const response = await sheets.spreadsheets.values.get({
@@ -36,14 +36,16 @@ export async function GET() {
       country: row[2] || '',
       industry: row[3] || '',
       subIndustry: row[4] || '',
-      history: Number(row[5]) || 0,
-      brandAwareness: Number(row[6]) || 0,
-      moat: Number(row[7]) || 0,
-      size: Number(row[8]) || 0,
-      innovation: Number(row[9]) || 0,
-      total: Number(row[10]) || 0,
-      website: row[11] || '',
-      logo: row[12] || ''
+      yearFounded: row[5] || '',
+      employees: row[6] || '',
+      history: Number(row[7]) || 0,
+      brandAwareness: Number(row[8]) || 0,
+      moat: Number(row[9]) || 0,
+      size: Number(row[10]) || 0,
+      innovation: Number(row[11]) || 0,
+      total: Number(row[12]) || 0,
+      website: row[13] || '',
+      logo: row[14] || ''
     }));
     return NextResponse.json(companies);
   } catch (error: any) {

@@ -25,6 +25,8 @@ interface Company {
   country: string
   industry: string
   subIndustry: string
+  yearFounded: string
+  employees: string
   history: number
   brandAwareness: number
   moat: number
@@ -131,7 +133,9 @@ export default function Home() {
         company.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
         company.country.toLowerCase().includes(searchTerm.toLowerCase()) ||
         company.industry.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        company.subIndustry.toLowerCase().includes(searchTerm.toLowerCase());
+        company.subIndustry.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        company.yearFounded.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        company.employees.toLowerCase().includes(searchTerm.toLowerCase());
       
       const matchesCountry = countryFilter.length > 0 ? countryFilter.includes(company.country) : true;
       const matchesIndustry = industryFilter.length > 0 ? industryFilter.includes(company.industry) : true;
@@ -185,7 +189,9 @@ export default function Home() {
     let filtered = companies.filter(company => {
       const matchesSearch = 
         company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        company.description.toLowerCase().includes(searchTerm.toLowerCase());
+        company.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        company.yearFounded.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        company.employees.toLowerCase().includes(searchTerm.toLowerCase());
       
       const matchesCountry = countryFilter.length === 0 || countryFilter.includes(company.country);
       const matchesIndustry = industryFilter.length === 0 || industryFilter.includes(company.industry);
@@ -550,6 +556,8 @@ export default function Home() {
                   <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Website</th>
                   <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Country</th>
                   <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Industry</th>
+                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Year Founded</th>
+                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Employees</th>
                   <th className="px-4 py-3 w-24 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none" onClick={() => {
                     setSortBy('history');
                     setSortOrder(sortBy === 'history' && sortOrder === 'asc' ? 'desc' : 'asc');
@@ -641,6 +649,8 @@ export default function Home() {
                         <div className="font-medium">{company.industry}</div>
                         <div className="text-xs text-gray-500 mt-1">{company.subIndustry}</div>
                       </td>
+                      <td className="px-4 py-2 text-sm text-center">{company.yearFounded}</td>
+                      <td className="px-4 py-2 text-sm text-center">{company.employees}</td>
                       <td className="px-4 py-2 w-24 whitespace-nowrap text-sm text-center">{company.history}</td>
                       <td className="px-4 py-2 w-24 whitespace-nowrap text-sm text-center">{company.brandAwareness}</td>
                       <td className="px-4 py-2 w-24 whitespace-nowrap text-sm text-center">{company.moat}</td>
