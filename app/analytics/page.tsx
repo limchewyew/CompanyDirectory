@@ -2,6 +2,27 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 import { BarChart3, PieChart, TrendingUp, Building2, Globe, DollarSign, Users, Calendar, Filter as FilterIcon } from 'lucide-react'
+import { Bar } from 'react-chartjs-2'
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  ChartOptions
+} from 'chart.js'
+
+// Register Chart.js components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+)
 
 // Add this custom hook for click-outside detection
 const useClickOutside = (ref: React.RefObject<HTMLElement>, callback: () => void) => {
@@ -149,21 +170,17 @@ export default function Analytics() {
     .sort(([,a], [,b]) => b - a)
     .slice(0, 10)
 
-  // Score distributions
-  const scoreRanges = {
-    '0-20': 0,
-    '21-40': 0,
-    '41-60': 0,
-    '61-80': 0,
-    '81-100': 0
+  // Score distributions from 10 to 45 - one point per bar
+  const scoreRanges: { [key: number]: number } = {}
+  for (let i = 10; i <= 45; i++) {
+    scoreRanges[i] = 0
   }
 
   filteredCompanies.forEach(company => {
-    if (company.total <= 20) scoreRanges['0-20']++
-    else if (company.total <= 40) scoreRanges['21-40']++
-    else if (company.total <= 60) scoreRanges['41-60']++
-    else if (company.total <= 80) scoreRanges['61-80']++
-    else scoreRanges['81-100']++
+    if (company.total >= 10 && company.total <= 45) {
+      const score = Math.floor(company.total)
+      scoreRanges[score]++
+    }
   })
 
   // Average scores by category
@@ -467,21 +484,61 @@ export default function Analytics() {
               <BarChart3 className="h-5 w-5 mr-2 text-blue-600" />
               Score Distribution
             </h3>
-            <div className="space-y-3">
-              {Object.entries(scoreRanges).map(([range, count]) => (
-                <div key={range} className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-600">{range}</span>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-32 bg-gray-200 rounded-full h-2">
-                      <div 
-                        className="bg-blue-600 h-2 rounded-full" 
-                        style={{ width: `${totalCompanies > 0 ? (count / totalCompanies) * 100 : 0}%` }}
-                      ></div>
-                    </div>
-                    <span className="text-sm text-gray-500 w-12 text-right">{count}</span>
-                  </div>
-                </div>
-              ))}
+            <div className="h-80">
+              <Bar
+                data={{
+                  labels: Object.keys(scoreRanges).map(score => `Score ${score}`),
+                  datasets: [
+                    {
+                      label: 'Number of Companies',
+                      data: Object.values(scoreRanges),
+                      backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                      borderColor: 'rgba(59, 130, 246, 1)',
+                      borderWidth: 1,
+                      borderRadius: 4,
+                      borderSkipped: false,
+                    }
+                  ]
+                }}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                    legend: {
+                      display: false
+                    },
+                    tooltip: {
+                      callbacks: {
+                        title: (context) => `Score ${context[0].label.split(' ')[1]}`,
+                        label: (context) => `${context.parsed.y} companies`
+                      }
+                    }
+                  },
+                  scales: {
+                    x: {
+                      title: {
+                        display: true,
+                        text: 'Score'
+                      },
+                      ticks: {
+                        maxRotation: 0,
+                        autoSkip: true,
+                        maxTicksLimit: 10
+                      }
+                    },
+                    y: {
+                      title: {
+                        display: true,
+                        text: 'Number of Companies'
+                      },
+                      beginAtZero: true,
+                      ticks: {
+                        stepSize: 1
+                      }
+                    }
+                  }
+                }}
+              />
             </div>
           </div>
 
