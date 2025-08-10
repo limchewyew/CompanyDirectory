@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { FaHome, FaQuestionCircle } from 'react-icons/fa';
+import { FaHome, FaQuestionCircle, FaChartBar } from 'react-icons/fa';
 import './globals.css';
 
 export default function Sidebar() {
@@ -54,6 +54,17 @@ export default function Sidebar() {
           title="Homepage"
         >
           <FaHome size={24} />
+        </a>
+      </Link>
+      <Link href="/analytics" legacyBehavior>
+        <a
+          style={{
+            ...iconStyle,
+            ...(pathname === '/analytics' ? activeStyle : {}),
+          } as React.CSSProperties}
+          title="Analytics"
+        >
+          <FaChartBar size={24} />
         </a>
       </Link>
       <Link href="/enquiry" legacyBehavior>
