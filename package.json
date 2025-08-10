@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "d3-scale": "^4.0.2",
     "googleapis": "^152.0.0",
     "lucide-react": "^0.263.1",
     "next": "14.0.0",
@@ -16,7 +17,8 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^5.5.0",
-    "react-range": "^1.10.0"
+    "react-range": "^1.10.0",
+    "react-simple-maps": "^3.0.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

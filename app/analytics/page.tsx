@@ -1,7 +1,22 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
-import { BarChart3, PieChart, TrendingUp, Building2, Globe, DollarSign, Users, Calendar } from 'lucide-react'
+import React, { useState, useEffect, useRef } from 'react'
+import { BarChart3, PieChart, TrendingUp, Building2, Globe, DollarSign, Users, Calendar, Filter as FilterIcon } from 'lucide-react'
+
+// Add this custom hook for click-outside detection
+const useClickOutside = (ref: React.RefObject<HTMLElement>, callback: () => void) => {
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (ref.current && !ref.current.contains(event.target as Node)) {
+        callback()
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [ref, callback])
+}
 
 interface Company {
   id: number
@@ -24,6 +39,39 @@ interface Company {
 
 export default function Analytics() {
   const [companies, setCompanies] = useState<Company[]>([])
+  const [filteredCompanies, setFilteredCompanies] = useState<Company[]>([])
+
+  // Filter states (multi-select)
+  const [countryFilter, setCountryFilter] = useState<string[]>([])
+  const [industryFilter, setIndustryFilter] = useState<string[]>([])
+  const [subIndustryFilter, setSubIndustryFilter] = useState<string[]>([])
+
+  // Total min/max filter
+  const [totalMin, setTotalMin] = useState<string>('')
+  const [totalMax, setTotalMax] = useState<string>('')
+
+  // Dropdown open states
+  const [openCountry, setOpenCountry] = useState(false)
+  const [openIndustry, setOpenIndustry] = useState(false)
+  const [openSubIndustry, setOpenSubIndustry] = useState(false)
+
+  // Filter search states
+  const [countrySearch, setCountrySearch] = useState('')
+  const [industrySearch, setIndustrySearch] = useState('')
+  const [subIndustrySearch, setSubIndustrySearch] = useState('')
+
+  // Filter bar visibility
+  const [showFilterBar, setShowFilterBar] = useState(false)
+
+  // Add refs for dropdown containers
+  const countryDropdownRef = useRef<HTMLDivElement>(null)
+  const industryDropdownRef = useRef<HTMLDivElement>(null)
+  const subIndustryDropdownRef = useRef<HTMLDivElement>(null)
+
+  // Add click-outside handlers
+  useClickOutside(countryDropdownRef, () => setOpenCountry(false))
+  useClickOutside(industryDropdownRef, () => setOpenIndustry(false))
+  useClickOutside(subIndustryDropdownRef, () => setOpenSubIndustry(false))
 
   useEffect(() => {
     fetch('/api/companies')
@@ -39,13 +87,50 @@ export default function Analytics() {
       })
   }, [])
 
-  // Calculate analytics data
-  const totalCompanies = companies.length
-  const countries = new Set(companies.map(c => c.country)).size
-  const industries = new Set(companies.map(c => c.industry)).size
+  // Unique filter options
+  const countryOptions = Array.from(new Set((companies ?? []).map(c => c.country).filter(Boolean)))
+  const industryOptions = Array.from(new Set((companies ?? []).map(c => c.industry).filter(Boolean)))
+  const subIndustryOptions = Array.from(new Set((companies ?? []).map(c => c.subIndustry).filter(Boolean)))
+
+  // Filtered options for dropdowns
+  const filteredCountryOptions = countryOptions.filter(option => option.toLowerCase().includes(countrySearch.toLowerCase())).sort((a, b) => a.localeCompare(b))
+  const filteredIndustryOptions = industryOptions.filter(option => option.toLowerCase().includes(industrySearch.toLowerCase())).sort((a, b) => a.localeCompare(b))
+  const filteredSubIndustryOptions = subIndustryOptions.filter(option => option.toLowerCase().includes(subIndustrySearch.toLowerCase())).sort((a, b) => a.localeCompare(b))
+
+  // Apply filters to companies
+  useEffect(() => {
+    let filtered = companies.filter(company => {
+      const matchesCountry = countryFilter.length > 0 ? countryFilter.includes(company.country) : true
+      const matchesIndustry = industryFilter.length > 0 ? industryFilter.includes(company.industry) : true
+      const matchesSubIndustry = subIndustryFilter.length > 0 ? subIndustryFilter.includes(company.subIndustry) : true
+      const matchesTotalMin = totalMin !== '' ? company.total >= Number(totalMin) : true
+      const matchesTotalMax = totalMax !== '' ? company.total <= Number(totalMax) : true
+      
+      return matchesCountry && matchesIndustry && matchesSubIndustry && matchesTotalMin && matchesTotalMax
+    })
+
+    setFilteredCompanies(filtered)
+  }, [companies, countryFilter, industryFilter, subIndustryFilter, totalMin, totalMax])
+
+  // Clear all filters handler
+  const handleClearAllFilters = () => {
+    setCountryFilter([])
+    setIndustryFilter([])
+    setSubIndustryFilter([])
+    setCountrySearch('')
+    setIndustrySearch('')
+    setSubIndustrySearch('')
+    setTotalMin('')
+    setTotalMax('')
+  }
+
+  // Calculate analytics data based on filtered companies
+  const totalCompanies = filteredCompanies.length
+  const countries = new Set(filteredCompanies.map(c => c.country)).size
+  const industries = new Set(filteredCompanies.map(c => c.industry)).size
   
   // Top industries by company count
-  const industryCounts = companies.reduce((acc, company) => {
+  const industryCounts = filteredCompanies.reduce((acc, company) => {
     acc[company.industry] = (acc[company.industry] || 0) + 1
     return acc
   }, {} as Record<string, number>)
@@ -55,7 +140,7 @@ export default function Analytics() {
     .slice(0, 10)
 
   // Top countries by company count
-  const countryCounts = companies.reduce((acc, company) => {
+  const countryCounts = filteredCompanies.reduce((acc, company) => {
     acc[company.country] = (acc[company.country] || 0) + 1
     return acc
   }, {} as Record<string, number>)
@@ -73,7 +158,7 @@ export default function Analytics() {
     '81-100': 0
   }
 
-  companies.forEach(company => {
+  filteredCompanies.forEach(company => {
     if (company.total <= 20) scoreRanges['0-20']++
     else if (company.total <= 40) scoreRanges['21-40']++
     else if (company.total <= 60) scoreRanges['41-60']++
@@ -82,12 +167,12 @@ export default function Analytics() {
   })
 
   // Average scores by category
-  const avgHistory = companies.reduce((sum, c) => sum + c.history, 0) / totalCompanies
-  const avgBrandAwareness = companies.reduce((sum, c) => sum + c.brandAwareness, 0) / totalCompanies
-  const avgMoat = companies.reduce((sum, c) => sum + c.moat, 0) / totalCompanies
-  const avgSize = companies.reduce((sum, c) => sum + c.size, 0) / totalCompanies
-  const avgInnovation = companies.reduce((sum, c) => sum + c.innovation, 0) / totalCompanies
-  const avgTotal = companies.reduce((sum, c) => sum + c.total, 0) / totalCompanies
+  const avgHistory = totalCompanies > 0 ? filteredCompanies.reduce((sum, c) => sum + c.history, 0) / totalCompanies : 0
+  const avgBrandAwareness = totalCompanies > 0 ? filteredCompanies.reduce((sum, c) => sum + c.brandAwareness, 0) / totalCompanies : 0
+  const avgMoat = totalCompanies > 0 ? filteredCompanies.reduce((sum, c) => sum + c.moat, 0) / totalCompanies : 0
+  const avgSize = totalCompanies > 0 ? filteredCompanies.reduce((sum, c) => sum + c.size, 0) / totalCompanies : 0
+  const avgInnovation = totalCompanies > 0 ? filteredCompanies.reduce((sum, c) => sum + c.innovation, 0) / totalCompanies : 0
+  const avgTotal = totalCompanies > 0 ? filteredCompanies.reduce((sum, c) => sum + c.total, 0) / totalCompanies : 0
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -104,9 +189,221 @@ export default function Analytics() {
           <div className="flex items-center justify-between">
             <p className="text-3xl text-gray-600">Analytics</p>
             <div className="flex items-center space-x-4">
-              {/* Analytics page doesn't need search/filter controls, but keeping the structure */}
+              <div className="flex items-center space-x-2">
+                <button
+                  type="button"
+                  className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 border border-gray-300"
+                  aria-label="Show filters"
+                  onClick={() => setShowFilterBar(v => !v)}
+                >
+                  <FilterIcon className={`h-5 w-5 ${showFilterBar ? 'text-blue-600' : 'text-gray-500'}`} />
+                </button>
+              </div>
             </div>
           </div>
+          {/* Filter Bar - Only show if toggled */}
+          {showFilterBar && (
+            <div className="flex flex-wrap items-start gap-4 mt-4 z-10 p-4 bg-gray-50 border border-gray-200 rounded-lg animate-fade-in">
+              {/* Filter dropdowns */}
+              <div className="flex flex-wrap gap-4 flex-1">
+                {/* Total Min/Max Filter */}
+                <div className="flex flex-col justify-end min-w-[170px]">
+                  <label className="block font-sans text-xs text-gray-500 mb-1">Total Range</label>
+                  <div className="flex gap-2 items-center">
+                    <input
+                      type="number"
+                      min="0"
+                      className="w-[150px] h-9 px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-400 text-sm"
+                      placeholder="Min"
+                      value={totalMin}
+                      onChange={e => setTotalMin(e.target.value)}
+                    />
+                    <span className="text-gray-500">-</span>
+                    <input
+                      type="number"
+                      min="0"
+                      className="w-[150px] h-9 px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-400 text-sm"
+                      placeholder="Max"
+                      value={totalMax}
+                      onChange={e => setTotalMax(e.target.value)}
+                    />
+                  </div>
+                </div>
+                {/* Country Multi-select */}
+                <div className="relative min-w-[150px]" ref={countryDropdownRef}>
+                  <label className="block font-sans text-xs text-gray-500 mb-1">Country</label>
+                  <div
+                    className="border border-gray-300 rounded px-2 py-1 text-sm bg-white cursor-pointer flex flex-wrap gap-1 min-h-[36px] items-center"
+                    onClick={() => { setOpenCountry(v => !v); setOpenIndustry(false); setOpenSubIndustry(false); }}
+                  >
+                    {countryFilter.length === 0 && <span className="text-gray-400">All</span>}
+                    {countryFilter.map(opt => (
+                      <span
+                        key={opt}
+                        className="bg-blue-500 text-white rounded px-2 py-0.5 font-sans text-xs mr-1 mb-1 flex items-center"
+                        onClick={e => {
+                          e.stopPropagation();
+                          setCountryFilter(countryFilter.filter(c => c !== opt));
+                        }}
+                      >{opt} <span className="ml-1 cursor-pointer">×</span></span>
+                    ))}
+                    <span className="ml-auto text-xs text-gray-400">▼</span>
+                  </div>
+                  {openCountry && (
+                    <div className="absolute z-10 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg max-h-64 overflow-y-auto">
+                      <div className="px-3 py-2">
+                        <input
+                          type="text"
+                          className="w-full px-2 py-1 border border-gray-300 rounded focus:outline-none focus:border-blue-400 text-sm"
+                          placeholder="Search country..."
+                          value={countrySearch}
+                          onChange={e => setCountrySearch(e.target.value)}
+                        />
+                      </div>
+                      {filteredCountryOptions.length === 0 && (
+                        <div className="px-3 py-2 text-gray-400 text-sm">No results</div>
+                      )}
+                      {filteredCountryOptions.map(option => (
+                        <label key={option} className="flex items-center px-3 py-2 cursor-pointer hover:bg-gray-100">
+                          <input
+                            type="checkbox"
+                            className="form-checkbox mr-2"
+                            checked={countryFilter.includes(option)}
+                            onChange={() => {
+                              setCountryFilter(
+                                countryFilter.includes(option)
+                                  ? countryFilter.filter(f => f !== option)
+                                  : [...countryFilter, option]
+                              );
+                            }}
+                          />
+                          {option}
+                        </label>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                {/* Industry Multi-select */}
+                <div className="relative min-w-[150px]" ref={industryDropdownRef}>
+                  <label className="block font-sans text-xs text-gray-500 mb-1">Industry</label>
+                  <div
+                    className="border border-gray-300 rounded px-2 py-1 text-sm bg-white cursor-pointer flex flex-wrap gap-1 min-h-[36px] items-center"
+                    onClick={() => { setOpenIndustry(v => !v); setOpenCountry(false); setOpenSubIndustry(false); }}
+                  >
+                    {industryFilter.length === 0 && <span className="text-gray-400">All</span>}
+                    {industryFilter.map(opt => (
+                      <span
+                        key={opt}
+                        className="bg-blue-500 text-white rounded px-2 py-0.5 font-sans text-xs mr-1 mb-1 flex items-center"
+                        onClick={e => {
+                          e.stopPropagation();
+                          setIndustryFilter(industryFilter.filter(i => i !== opt));
+                        }}
+                      >{opt} <span className="ml-1 cursor-pointer">×</span></span>
+                    ))}
+                    <span className="ml-auto text-xs text-gray-400">▼</span>
+                  </div>
+                  {openIndustry && (
+                    <div className="absolute z-10 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg max-h-64 overflow-y-auto">
+                      <div className="px-3 py-2">
+                        <input
+                          type="text"
+                          className="w-full px-2 py-1 border border-gray-300 rounded focus:outline-none focus:border-blue-400 text-sm"
+                          placeholder="Search industry..."
+                          value={industrySearch}
+                          onChange={e => setIndustrySearch(e.target.value)}
+                        />
+                      </div>
+                      {filteredIndustryOptions.length === 0 && (
+                        <div className="px-3 py-2 text-gray-400 text-sm">No results</div>
+                      )}
+                      {filteredIndustryOptions.map(option => (
+                        <label key={option} className="flex items-center px-3 py-2 cursor-pointer hover:bg-gray-100">
+                          <input
+                            type="checkbox"
+                            className="form-checkbox mr-2"
+                            checked={industryFilter.includes(option)}
+                            onChange={() => {
+                              setIndustryFilter(
+                                industryFilter.includes(option)
+                                  ? industryFilter.filter(f => f !== option)
+                                  : [...industryFilter, option]
+                              );
+                            }}
+                          />
+                          {option}
+                        </label>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                {/* Subsector Multi-select */}
+                <div className="relative min-w-[150px]" ref={subIndustryDropdownRef}>
+                  <label className="block font-sans text-xs text-gray-500 mb-1">Subsector</label>
+                  <div
+                    className="border border-gray-300 rounded px-2 py-1 text-sm bg-white cursor-pointer flex flex-wrap gap-1 min-h-[36px] items-center"
+                    onClick={() => { setOpenSubIndustry(v => !v); setOpenCountry(false); setOpenIndustry(false); }}
+                  >
+                    {subIndustryFilter.length === 0 && <span className="text-gray-400">All</span>}
+                    {subIndustryFilter.map(opt => (
+                      <span
+                        key={opt}
+                        className="bg-blue-500 text-white rounded px-2 py-0.5 font-sans text-xs mr-1 mb-1 flex items-center"
+                        onClick={e => {
+                          e.stopPropagation();
+                          setSubIndustryFilter(subIndustryFilter.filter(s => s !== opt));
+                        }}
+                      >{opt} <span className="ml-1 cursor-pointer">×</span></span>
+                    ))}
+                    <span className="ml-auto text-xs text-gray-400">▼</span>
+                  </div>
+                  {openSubIndustry && (
+                    <div className="absolute z-10 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg max-h-64 overflow-y-auto">
+                      <div className="px-3 py-2">
+                        <input
+                          type="text"
+                          className="w-full px-2 py-1 border border-gray-300 rounded focus:outline-none focus:border-blue-400 text-sm"
+                          placeholder="Search sub-industry..."
+                          value={subIndustrySearch}
+                          onChange={e => setSubIndustrySearch(e.target.value)}
+                        />
+                      </div>
+                      {filteredSubIndustryOptions.length === 0 && (
+                        <div className="px-3 py-2 text-gray-400 text-sm">No results</div>
+                      )}
+                      {filteredSubIndustryOptions.map(option => (
+                        <label key={option} className="flex items-center px-3 py-2 cursor-pointer hover:bg-gray-100">
+                          <input
+                            type="checkbox"
+                            className="form-checkbox mr-2"
+                            checked={subIndustryFilter.includes(option)}
+                            onChange={() => {
+                              setSubIndustryFilter(
+                                subIndustryFilter.includes(option)
+                                  ? subIndustryFilter.filter(f => f !== option)
+                                  : [...subIndustryFilter, option]
+                              );
+                            }}
+                          />
+                          {option}
+                        </label>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+              {/* Clear All Filters button at right */}
+              <div className="ml-auto flex items-center">
+                <button
+                  type="button"
+                  className="px-4 py-2 mt-4 bg-white border border-gray-300 rounded hover:bg-gray-100 text-gray-600 font-sans text-xs font-medium transition-all self-center"
+                  onClick={handleClearAllFilters}
+                >
+                  Clear All Filters
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -178,7 +475,7 @@ export default function Analytics() {
                     <div className="w-32 bg-gray-200 rounded-full h-2">
                       <div 
                         className="bg-blue-600 h-2 rounded-full" 
-                        style={{ width: `${(count / totalCompanies) * 100}%` }}
+                        style={{ width: `${totalCompanies > 0 ? (count / totalCompanies) * 100 : 0}%` }}
                       ></div>
                     </div>
                     <span className="text-sm text-gray-500 w-12 text-right">{count}</span>
@@ -241,7 +538,7 @@ export default function Analytics() {
                     <div className="w-24 bg-gray-200 rounded-full h-2">
                       <div 
                         className="bg-purple-600 h-2 rounded-full" 
-                        style={{ width: `${(count / totalCompanies) * 100}%` }}
+                        style={{ width: `${totalCompanies > 0 ? (count / totalCompanies) * 100 : 0}%` }}
                       ></div>
                     </div>
                     <span className="text-sm text-gray-500 w-12 text-right">{count}</span>
@@ -270,7 +567,7 @@ export default function Analytics() {
                     <div className="w-24 bg-gray-200 rounded-full h-2">
                       <div 
                         className="bg-green-600 h-2 rounded-full" 
-                        style={{ width: `${(count / totalCompanies) * 100}%` }}
+                        style={{ width: `${totalCompanies > 0 ? (count / totalCompanies) * 100 : 0}%` }}
                       ></div>
                     </div>
                     <span className="text-sm text-gray-500 w-12 text-right">{count}</span>
