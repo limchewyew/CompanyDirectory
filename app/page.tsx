@@ -357,7 +357,7 @@ export default function Home() {
                     <span className="ml-auto text-xs text-gray-400">▼</span>
                   </div>
                   {openCountry && (
-                    <div className="absolute z-10 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg max-h-64 overflow-y-auto">
+                    <div className="absolute z-50 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg max-h-64 overflow-y-auto">
                       <div className="px-3 py-2">
                         <input
                           type="text"
@@ -411,7 +411,7 @@ export default function Home() {
                     <span className="ml-auto text-xs text-gray-400">▼</span>
                   </div>
                   {openIndustry && (
-                    <div className="absolute z-10 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg max-h-64 overflow-y-auto">
+                    <div className="absolute z-50 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg max-h-64 overflow-y-auto">
                       <div className="px-3 py-2">
                         <input
                           type="text"
@@ -465,7 +465,7 @@ export default function Home() {
                     <span className="ml-auto text-xs text-gray-400">▼</span>
                   </div>
                   {openSubIndustry && (
-                    <div className="absolute z-10 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg max-h-64 overflow-y-auto">
+                    <div className="absolute z-50 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg max-h-64 overflow-y-auto">
                       <div className="px-3 py-2">
                         <input
                           type="text"
