@@ -62,7 +62,7 @@ export default function Home() {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [filteredCompanies, setFilteredCompanies] = useState<Company[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortBy, setSortBy] = useState<'history' | 'brandAwareness' | 'moat' | 'size' | 'innovation' | 'total' | 'name'>('total');
+  const [sortBy, setSortBy] = useState<'history' | 'brandAwareness' | 'moat' | 'size' | 'innovation' | 'total' | 'name' | 'yearFounded' | 'employees'>('total');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
   // Filter states (multi-select)
@@ -178,6 +178,18 @@ export default function Home() {
           ? a.name.localeCompare(b.name)
           : b.name.localeCompare(a.name);
       });
+    } else if (sortBy === "yearFounded") {
+      filtered = [...filtered].sort((a, b) => {
+        const aVal = Number(a.yearFounded) || 0;
+        const bVal = Number(b.yearFounded) || 0;
+        return sortOrder === "asc" ? aVal - bVal : bVal - aVal;
+      });
+    } else if (sortBy === "employees") {
+      filtered = [...filtered].sort((a, b) => {
+        const aVal = Number(a.employees) || 0;
+        const bVal = Number(b.employees) || 0;
+        return sortOrder === "asc" ? aVal - bVal : bVal - aVal;
+      });
     }
 
     setFilteredCompanies(filtered);
@@ -210,10 +222,20 @@ export default function Home() {
         return sortOrder === 'asc' 
           ? a.name.localeCompare(b.name)
           : b.name.localeCompare(a.name);
+      } else if (["history", "brandAwareness", "moat", "size", "innovation", "total"].includes(sortBy)) {
+        const aVal = Number(a[sortBy]) || 0;
+        const bVal = Number(b[sortBy]) || 0;
+        return sortOrder === 'asc' ? aVal - bVal : bVal - aVal;
+      } else if (sortBy === "yearFounded") {
+        const aVal = Number(a.yearFounded) || 0;
+        const bVal = Number(b.yearFounded) || 0;
+        return sortOrder === 'asc' ? aVal - bVal : bVal - aVal;
+      } else if (sortBy === "employees") {
+        const aVal = Number(a.employees) || 0;
+        const bVal = Number(b.employees) || 0;
+        return sortOrder === 'asc' ? aVal - bVal : bVal - aVal;
       }
-      return sortOrder === 'asc' 
-        ? a[sortBy] - b[sortBy]
-        : b[sortBy] - a[sortBy];
+      return 0;
     });
     
     setFilteredCompanies(filtered);
@@ -556,8 +578,24 @@ export default function Home() {
                   <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Website</th>
                   <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Country</th>
                   <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Industry</th>
-                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Year Founded</th>
-                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Employees</th>
+                  <th 
+                    className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none"
+                    onClick={() => {
+                      setSortBy('yearFounded');
+                      setSortOrder(sortBy === 'yearFounded' && sortOrder === 'asc' ? 'desc' : 'asc');
+                    }}
+                  >
+                    Year Founded {sortBy === 'yearFounded' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
+                  </th>
+                  <th 
+                    className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none"
+                    onClick={() => {
+                      setSortBy('employees');
+                      setSortOrder(sortBy === 'employees' && sortOrder === 'asc' ? 'desc' : 'asc');
+                    }}
+                  >
+                    Number of Employees {sortBy === 'employees' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
+                  </th>
                   <th className="px-4 py-3 w-24 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none" onClick={() => {
                     setSortBy('history');
                     setSortOrder(sortBy === 'history' && sortOrder === 'asc' ? 'desc' : 'asc');
