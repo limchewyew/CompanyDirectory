@@ -272,18 +272,18 @@ export default function Home() {
               <div className="flex items-center space-x-2">
                 <button
                   type="button"
-                  className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 border border-gray-300"
+                  className="p-2 bg-slate-100 rounded-lg hover:bg-slate-200 border border-slate-200 transition-colors"
                   aria-label="Show filters"
                   onClick={() => {
                     setShowFilterBar(v => !v);
                     setRandomCount(0); // Reset random count when opening filters
                   }}
                 >
-                  <FilterIcon className={`h-5 w-5 ${showFilterBar ? 'text-blue-600' : 'text-gray-500'}`} />
+                  <FilterIcon className={`h-5 w-5 ${showFilterBar ? 'text-slate-700' : 'text-slate-500'}`} />
                 </button>
                 <button
                   type="button"
-                  className="flex items-center px-3 py-2 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-full text-sm font-medium transition-colors whitespace-nowrap"
+                  className="flex items-center px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-full text-sm font-medium transition-colors whitespace-nowrap border border-slate-200"
                   onClick={() => {
                     setRandomCount(prev => prev + 1); // Increment to trigger re-render
                     setShowFilterBar(false); // Close filter bar when using surprise me
@@ -301,7 +301,7 @@ export default function Home() {
                 <input
                   type="text"
                   placeholder="Search companies..."
-                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent transition-colors"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -320,7 +320,7 @@ export default function Home() {
                     <input
                       type="number"
                       min="0"
-                      className="w-[150px] h-9 px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-400 text-sm"
+                      className="w-[150px] h-9 px-3 py-2 border border-slate-300 rounded focus:outline-none focus:border-slate-500 text-sm transition-colors"
                       placeholder="Min"
                       value={totalMin}
                       onChange={e => setTotalMin(e.target.value)}
@@ -329,7 +329,7 @@ export default function Home() {
                     <input
                       type="number"
                       min="0"
-                      className="w-[150px] h-9 px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-400 text-sm"
+                      className="w-[150px] h-9 px-3 py-2 border border-slate-300 rounded focus:outline-none focus:border-slate-500 text-sm transition-colors"
                       placeholder="Max"
                       value={totalMax}
                       onChange={e => setTotalMax(e.target.value)}
@@ -361,7 +361,7 @@ export default function Home() {
                       <div className="px-3 py-2">
                         <input
                           type="text"
-                          className="w-full px-2 py-1 border border-gray-300 rounded focus:outline-none focus:border-blue-400 text-sm"
+                          className="w-full px-2 py-1 border border-slate-300 rounded focus:outline-none focus:border-slate-500 text-sm transition-colors"
                           placeholder="Search country..."
                           value={countrySearch}
                           onChange={e => setCountrySearch(e.target.value)}
@@ -415,7 +415,7 @@ export default function Home() {
                       <div className="px-3 py-2">
                         <input
                           type="text"
-                          className="w-full px-2 py-1 border border-gray-300 rounded focus:outline-none focus:border-blue-400 text-sm"
+                          className="w-full px-2 py-1 border border-slate-300 rounded focus:outline-none focus:border-slate-500 text-sm transition-colors"
                           placeholder="Search industry..."
                           value={industrySearch}
                           onChange={e => setIndustrySearch(e.target.value)}
@@ -469,7 +469,7 @@ export default function Home() {
                       <div className="px-3 py-2">
                         <input
                           type="text"
-                          className="w-full px-2 py-1 border border-gray-300 rounded focus:outline-none focus:border-blue-400 text-sm"
+                          className="w-full px-2 py-1 border border-slate-300 rounded focus:outline-none focus:border-slate-500 text-sm transition-colors"
                           placeholder="Search sub-industry..."
                           value={subIndustrySearch}
                           onChange={e => setSubIndustrySearch(e.target.value)}
@@ -518,38 +518,38 @@ export default function Home() {
       {/* Stats */}
       <div className="w-11/12 mx-auto px-6 py-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
             <div className="flex items-center">
-              <div className="h-14 w-14 flex items-center justify-center rounded-full bg-gradient-to-br from-yellow-200 via-yellow-400 to-yellow-600 shadow-lg border border-yellow-300">
-                <Star className="h-8 w-8 text-yellow-500 drop-shadow-[0_2px_4px_rgba(0,0,0,0.15)]" />
+              <div className="h-12 w-12 flex items-center justify-center rounded-lg bg-slate-100 border border-slate-200">
+                <Star className="h-6 w-6 text-slate-600" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Average Total Score</p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-sm font-medium text-slate-600">Average Total Score</p>
+                <p className="text-2xl font-bold text-slate-900">
                   {filteredCompanies.length > 0 ? (filteredCompanies.reduce((sum, company) => sum + Number(company.total ?? 0), 0) / filteredCompanies.length).toFixed(2) : '0.00'}
                 </p>
               </div>
             </div>
           </div>
-          <div className="bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
             <div className="flex items-center">
-              <div className="h-14 w-14 flex items-center justify-center rounded-full bg-gradient-to-br from-blue-200 via-blue-400 to-blue-600 shadow-lg border border-blue-300">
-                <Building2 className="h-8 w-8 text-blue-600 drop-shadow-[0_2px_4px_rgba(0,0,0,0.15)]" />
+              <div className="h-12 w-12 flex items-center justify-center rounded-lg bg-blue-50 border border-blue-200">
+                <Building2 className="h-6 w-6 text-blue-700" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Companies</p>
-                <p className="text-2xl font-bold text-gray-900">{filteredCompanies.length.toLocaleString()}</p>
+                <p className="text-sm font-medium text-slate-600">Total Companies</p>
+                <p className="text-2xl font-bold text-slate-900">{filteredCompanies.length.toLocaleString()}</p>
               </div>
             </div>
           </div>
-          <div className="bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
             <div className="flex items-center">
-              <div className="h-14 w-14 flex items-center justify-center rounded-full bg-gradient-to-br from-purple-200 via-purple-400 to-purple-600 shadow-lg border border-purple-300">
-                <Globe className="h-8 w-8 text-purple-600 drop-shadow-[0_2px_4px_rgba(0,0,0,0.15)]" />
+              <div className="h-12 w-12 flex items-center justify-center rounded-lg bg-emerald-50 border border-emerald-200">
+                <Globe className="h-6 w-6 text-emerald-700" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Countries</p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-sm font-medium text-slate-600">Countries</p>
+                <p className="text-2xl font-bold text-slate-900">
                   {new Set(filteredCompanies.map(c => c.country)).size}
                 </p>
               </div>

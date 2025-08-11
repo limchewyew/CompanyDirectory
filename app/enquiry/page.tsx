@@ -87,7 +87,7 @@ export default function Inquiry() {
       {/* Header */}
       <header className="bg-gray-100 border-b border-gray-200">
         <div className="px-5 py-3">
-          <h1 className="text-3xl font-semibold text-gray-700 uppercase tracking-wider ml-1 font-montserrat">INQUIRY</h1>
+          <h1 className="text-3xl font-semibold text-gray-700 uppercase tracking-wider ml-1 font-montserrat"> </h1>
         </div>
       </header>
       {/* Search Bar */}
