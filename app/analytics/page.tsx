@@ -165,9 +165,8 @@ export default function Analytics() {
     return acc
   }, {} as Record<string, number>)
   
-  const topCountries = Object.entries(countryCounts)
+  const allCountries = Object.entries(countryCounts)
     .sort(([,a], [,b]) => b - a)
-    .slice(0, 10)
 
   // Score distributions from 10 to 45 - one point per bar
   const scoreRanges: { [key: number]: number } = {}
@@ -614,28 +613,34 @@ export default function Analytics() {
           <div className="bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
             <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
               <Globe className="h-5 w-5 mr-2 text-green-600" />
-              Top Countries
+              All Countries ({allCountries.length})
             </h3>
-            <div className="space-y-3">
-              {topCountries.map(([country, count], index) => (
-                <div key={country} className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <span className="text-sm font-medium text-gray-400 w-6">#{index + 1}</span>
-                    <span className="text-sm font-medium text-gray-700 truncate max-w-[200px]" title={country}>
-                      {country}
-                    </span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-24 bg-gray-200 rounded-full h-2">
-                      <div 
-                        className="bg-green-600 h-2 rounded-full" 
-                        style={{ width: `${totalCompanies > 0 ? (count / totalCompanies) * 100 : 0}%` }}
-                      ></div>
+            <div className="max-h-96 overflow-y-auto space-y-3 pr-2">
+              {allCountries.map(([country, count], index) => {
+                // Calculate bar width based on the highest count for better visibility
+                const maxCount = Math.max(...allCountries.map(([, c]) => c))
+                const barWidth = maxCount > 0 ? (count / maxCount) * 100 : 0
+                
+                return (
+                  <div key={country} className="flex items-center justify-between py-1">
+                    <div className="flex items-center space-x-3 min-w-0 flex-1">
+                      <span className="text-sm font-medium text-gray-400 w-8 flex-shrink-0">#{index + 1}</span>
+                      <span className="text-sm font-medium text-gray-700 break-words" title={country}>
+                        {country}
+                      </span>
                     </div>
-                    <span className="text-sm text-gray-500 w-12 text-right">{count}</span>
+                    <div className="flex items-center space-x-3 ml-4 flex-shrink-0">
+                      <div className="w-32 bg-gray-200 rounded-full h-3">
+                        <div 
+                          className="bg-green-600 h-3 rounded-full transition-all duration-300" 
+                          style={{ width: `${barWidth}%` }}
+                        ></div>
+                      </div>
+                      <span className="text-sm font-medium text-gray-700 w-16 text-right">{count}</span>
+                    </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           </div>
         </div>
