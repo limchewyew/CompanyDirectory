@@ -67,13 +67,13 @@ export default function Sidebar() {
           <FaChartBar size={24} />
         </a>
       </Link>
-      <Link href="/enquiry" legacyBehavior>
+      <Link href="/inquiry" legacyBehavior>
         <a
           style={{
             ...iconStyle,
-            ...(pathname === '/enquiry' ? activeStyle : {}),
+            ...(pathname === '/inquiry' ? activeStyle : {}),
           } as React.CSSProperties}
-          title="Enquiry"
+          title="Inquiry"
         >
           <FaQuestionCircle size={24} />
         </a>

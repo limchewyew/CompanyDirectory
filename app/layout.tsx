@@ -1,10 +1,7 @@
 import React from 'react';
 import Sidebar from './Sidebar';
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
 import './globals.css'
-
-const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'Companies Directory',
@@ -19,7 +16,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className} style={{margin:0,padding:0,overflowX:'hidden'}}>
+      <body style={{margin:0,padding:0,overflowX:'hidden',fontFamily:"'Montserrat','Inter',Arial,sans-serif"}}>
         <div style={{ display: 'flex', minHeight: '100vh' }}>
           <Sidebar />
           <main style={{ flex: 1, padding: '0 24px', overflowX: 'hidden' }}>{children}</main>

@@ -1,6 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
 
 /* Custom slider thumb for all browsers */
 input[type="range"].slider-thumb-custom {
@@ -74,4 +75,56 @@ input[type="range"].slider-thumb-custom:focus::-ms-thumb {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
+}
+
+html, body {
+  font-family: 'Montserrat', 'Inter', Arial, sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6, .header, .form-header {
+  font-family: 'Montserrat', 'Inter', Arial, sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+input, select, textarea, button, label {
+  font-family: 'Montserrat', 'Inter', Arial, sans-serif;
+}
+
+/* Modern form improvements */
+form {
+  background: #fff;
+  border-radius: 1rem;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+  padding: 2rem;
+}
+input, select, textarea {
+  border-radius: 0.5rem;
+  border: 1px solid #d1d5db;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+  transition: border 0.2s, box-shadow 0.2s;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: #06b6d4;
+  box-shadow: 0 0 0 2px #bae6fd;
+}
+button[type="submit"] {
+  font-family: 'Montserrat', 'Inter', Arial, sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  background: linear-gradient(90deg, #06b6d4 0%, #2563eb 100%);
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.75rem 2rem;
+  color: #fff;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(6,182,212,0.08);
+}
+button[type="submit"]:hover {
+  background: linear-gradient(90deg, #2563eb 0%, #06b6d4 100%);
+  box-shadow: 0 4px 16px rgba(37,99,235,0.12);
 }

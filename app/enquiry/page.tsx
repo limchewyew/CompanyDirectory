@@ -9,7 +9,7 @@ const inquiryTypes = [
   'Others',
 ];
 
-export default function Enquiry() {
+export default function Inquiry() {
   const [form, setForm] = useState({
     name: '',
     email: '',
@@ -45,9 +45,9 @@ export default function Enquiry() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           to: process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'limchewyew@gmail.com',
-          subject: `New Enquiry: ${form.type}`,
+          subject: `New Inquiry: ${form.type}`,
           html: `
-            <h2>New Enquiry Received</h2>
+            <h2>New Inquiry Received</h2>
             <p><strong>Name:</strong> ${form.name}</p>
             <p><strong>Email:</strong> ${form.email}</p>
             <p><strong>Type:</strong> ${form.type}</p>
@@ -87,14 +87,14 @@ export default function Enquiry() {
       {/* Header */}
       <header className="bg-gray-100 border-b border-gray-200">
         <div className="px-5 py-3">
-          <h1 className="text-3xl font-light text-gray-500 uppercase tracking-wider ml-1"> </h1>
+          <h1 className="text-3xl font-semibold text-gray-700 uppercase tracking-wider ml-1 font-montserrat">INQUIRY</h1>
         </div>
       </header>
       {/* Search Bar */}
       <div className="bg-white shadow-sm border-b">
         <div className="w-11/12 mx-auto px-6 py-2">
           <div className="flex items-center justify-between">
-            <p className="text-3xl text-gray-600">Inquiry Form</p>
+            <p className="text-3xl text-gray-700 font-montserrat font-semibold">Inquiry Form</p>
             <div />
           </div>
         </div>
