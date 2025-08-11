@@ -168,16 +168,17 @@ export default function Analytics() {
   const allCountries = Object.entries(countryCounts)
     .sort(([,a], [,b]) => b - a)
 
-  // Score distributions from 10 to 45 - one point per bar
+  // Score distributions from 10 to 45 - using 5 as interval
   const scoreRanges: { [key: number]: number } = {}
-  for (let i = 10; i <= 45; i++) {
+  for (let i = 10; i <= 45; i += 5) {
     scoreRanges[i] = 0
   }
 
   filteredCompanies.forEach(company => {
     if (company.total >= 10 && company.total <= 45) {
-      const score = Math.floor(company.total)
-      scoreRanges[score]++
+      // Group scores into 5-point intervals
+      const interval = Math.floor((company.total - 10) / 5) * 5 + 10
+      scoreRanges[interval]++
     }
   })
 
@@ -483,9 +484,9 @@ export default function Analytics() {
               Score Distribution
             </h3>
             <div className="h-80">
-              <Bar
+                            <Bar
                 data={{
-                  labels: Object.keys(scoreRanges).map(score => `Score ${score}`),
+                  labels: Object.keys(scoreRanges).map(score => score),
                   datasets: [
                     {
                       label: 'Number of Companies',
@@ -507,7 +508,7 @@ export default function Analytics() {
                     },
                     tooltip: {
                       callbacks: {
-                        title: (context) => `Score ${context[0].label.split(' ')[1]}`,
+                        title: (context) => `Score ${context[0].label}`,
                         label: (context) => `${context.parsed.y} companies`
                       }
                     }
