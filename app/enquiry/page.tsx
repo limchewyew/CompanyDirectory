@@ -1,4 +1,5 @@
 'use client';
+
 import React, { useState } from 'react';
 
 const inquiryTypes = [
@@ -15,6 +16,46 @@ export default function Enquiry() {
     type: inquiryTypes[0],
     message: '',
   });
+  const [status, setStatus] = useState<{ type: 'idle' | 'loading' | 'success' | 'error', message: string }>({ type: 'idle', message: '' });
+  const [isSubmitted, setIsSubmitted] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStatus({ type: 'loading', message: 'Sending your message...' });
+
+    try {
+      const response = await fetch('/api/analytics', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: form.name,
+          email: form.email,
+          query: `Type: ${form.type}\n\n${form.message}`
+        }),
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        setStatus({ type: 'success', message: 'Message sent successfully! We\'ll get back to you soon.' });
+        setIsSubmitted(true);
+        // Reset form
+        setForm({
+          name: '',
+          email: '',
+          type: inquiryTypes[0],
+          message: '',
+        });
+      } else {
+        throw new Error(data.message || 'Failed to send message');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      setStatus({ type: 'error', message: 'Failed to send message. Please try again later.' });
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -34,7 +75,10 @@ export default function Enquiry() {
         </div>
       </div>
       <div className="flex justify-center mt-8">
-        <form className="bg-white rounded-lg shadow p-8 w-full max-w-xl space-y-6">
+        <form 
+          onSubmit={handleSubmit}
+          className="bg-white rounded-lg shadow p-8 w-full max-w-xl space-y-6"
+        >
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Your Name</label>
             <input
@@ -76,12 +120,24 @@ export default function Enquiry() {
               onChange={e => setForm(f => ({ ...f, message: e.target.value }))}
             />
           </div>
+          {status.message && (
+            <div className={`p-3 rounded ${
+              status.type === 'success' ? 'bg-green-100 text-green-700' :
+              status.type === 'error' ? 'bg-red-100 text-red-700' :
+              'bg-blue-100 text-blue-700'
+            }`}>
+              {status.message}
+            </div>
+          )}
+          
           <button
             type="submit"
-            className="w-full bg-cyan-600 text-white py-2 rounded font-semibold hover:bg-cyan-700 transition"
-            disabled
+            className={`w-full bg-cyan-600 text-white py-2 rounded font-semibold hover:bg-cyan-700 transition ${
+              status.type === 'loading' ? 'opacity-70 cursor-not-allowed' : ''
+            }`}
+            disabled={status.type === 'loading'}
           >
-            Submit (Coming Soon)
+            {status.type === 'loading' ? 'Sending...' : 'Submit'}
           </button>
         </form>
       </div>
