@@ -24,11 +24,10 @@ export default function Enquiry() {
     setStatus({ type: 'loading', message: 'Sending your message...' });
 
     try {
-      const response = await fetch('/api/analytics', {
+      // First, send to analytics
+      const analyticsResponse = await fetch('/api/analytics', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: form.name,
           email: form.email,
@@ -36,21 +35,47 @@ export default function Enquiry() {
         }),
       });
 
-      const data = await response.json();
-      
-      if (data.success) {
-        setStatus({ type: 'success', message: 'Message sent successfully! We\'ll get back to you soon.' });
-        setIsSubmitted(true);
-        // Reset form
-        setForm({
-          name: '',
-          email: '',
-          type: inquiryTypes[0],
-          message: '',
-        });
-      } else {
-        throw new Error(data.message || 'Failed to send message');
+      if (!analyticsResponse.ok) {
+        throw new Error('Failed to log analytics');
       }
+
+      // Then send email
+      const emailResponse = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'limchewyew@gmail.com',
+          subject: `New Enquiry: ${form.type}`,
+          html: `
+            <h2>New Enquiry Received</h2>
+            <p><strong>Name:</strong> ${form.name}</p>
+            <p><strong>Email:</strong> ${form.email}</p>
+            <p><strong>Type:</strong> ${form.type}</p>
+            <p><strong>Message:</strong></p>
+            <p>${form.message.replace(/\n/g, '<br>')}</p>
+          `
+        }),
+      });
+
+      if (!emailResponse.ok) {
+        throw new Error('Failed to send email');
+      }
+
+      const emailData = await emailResponse.json();
+      
+      if (!emailData.success) {
+        throw new Error(emailData.error || 'Failed to send email');
+      }
+
+      setStatus({ type: 'success', message: 'Message sent successfully! We\'ll get back to you soon.' });
+      setIsSubmitted(true);
+      // Reset form
+      setForm({
+        name: '',
+        email: '',
+        type: inquiryTypes[0],
+        message: '',
+      });
     } catch (error) {
       console.error('Error:', error);
       setStatus({ type: 'error', message: 'Failed to send message. Please try again later.' });
