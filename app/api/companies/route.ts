@@ -6,20 +6,26 @@ import path from 'path';
 export const dynamic = 'force-dynamic'; // Prevent static optimization
 
 export async function GET() {
-  // Load credentials from environment variable
-  const credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS!);
-
-  const auth = new google.auth.GoogleAuth({
-    credentials,
-    scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
-  });
-
-  const sheets = google.sheets({ version: 'v4', auth });
-
-  const spreadsheetId = '1Be3uWps2Y3DUaIIldVVvhHlThzt__dgw7pdaMb68AxU';
-  const range = 'Database!A:O';
+  // Check if credentials exist
+  if (!process.env.GOOGLE_CREDENTIALS) {
+    console.error('GOOGLE_CREDENTIALS environment variable is not set');
+    return NextResponse.json(
+      { error: 'Server configuration error: GOOGLE_CREDENTIALS environment variable is not set' },
+      { status: 500 }
+    );
+  }
 
   try {
+    const credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS);
+    
+    const auth = new google.auth.GoogleAuth({
+      credentials,
+      scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
+    });
+
+    const sheets = google.sheets({ version: 'v4', auth });
+    const spreadsheetId = '1Be3uWps2Y3DUaIIldVVvhHlThzt__dgw7pdaMb68AxU';
+    const range = 'Database!A:O';
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId,
       range,
