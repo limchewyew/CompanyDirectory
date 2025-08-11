@@ -71,6 +71,11 @@ export default function Analytics() {
   const [totalMin, setTotalMin] = useState<string>('')
   const [totalMax, setTotalMax] = useState<string>('')
 
+  // Interactive chart filter states
+  const [selectedIndustry, setSelectedIndustry] = useState<string | null>(null)
+  const [selectedCountry, setSelectedCountry] = useState<string | null>(null)
+  const [selectedScoreRange, setSelectedScoreRange] = useState<number | null>(null)
+
   // Dropdown open states
   const [openCountry, setOpenCountry] = useState(false)
   const [openIndustry, setOpenIndustry] = useState(false)
@@ -127,11 +132,19 @@ export default function Analytics() {
       const matchesTotalMin = totalMin !== '' ? company.total >= Number(totalMin) : true
       const matchesTotalMax = totalMax !== '' ? company.total <= Number(totalMax) : true
       
-      return matchesCountry && matchesIndustry && matchesSubIndustry && matchesTotalMin && matchesTotalMax
+      // Interactive chart filters
+      const matchesSelectedIndustry = selectedIndustry ? company.industry === selectedIndustry : true
+      const matchesSelectedCountry = selectedCountry ? company.country === selectedCountry : true
+      const matchesSelectedScoreRange = selectedScoreRange ? 
+        (company.total >= selectedScoreRange && company.total < selectedScoreRange + 5) : true
+      
+      return matchesCountry && matchesIndustry && matchesSubIndustry && matchesTotalMin && matchesTotalMax &&
+             matchesSelectedIndustry && matchesSelectedCountry && matchesSelectedScoreRange
     })
 
     setFilteredCompanies(filtered)
-  }, [companies, countryFilter, industryFilter, subIndustryFilter, totalMin, totalMax])
+  }, [companies, countryFilter, industryFilter, subIndustryFilter, totalMin, totalMax, 
+      selectedIndustry, selectedCountry, selectedScoreRange])
 
   // Clear all filters handler
   const handleClearAllFilters = () => {
@@ -143,6 +156,28 @@ export default function Analytics() {
     setSubIndustrySearch('')
     setTotalMin('')
     setTotalMax('')
+    setSelectedIndustry(null)
+    setSelectedCountry(null)
+    setSelectedScoreRange(null)
+  }
+
+  // Chart interaction handlers
+  const handleIndustryClick = (industry: string) => {
+    setSelectedIndustry(selectedIndustry === industry ? null : industry)
+    setSelectedCountry(null)
+    setSelectedScoreRange(null)
+  }
+
+  const handleCountryClick = (country: string) => {
+    setSelectedCountry(selectedCountry === country ? null : country)
+    setSelectedIndustry(null)
+    setSelectedScoreRange(null)
+  }
+
+  const handleScoreRangeClick = (scoreRange: number) => {
+    setSelectedScoreRange(selectedScoreRange === scoreRange ? null : scoreRange)
+    setSelectedIndustry(null)
+    setSelectedCountry(null)
   }
 
   // Calculate analytics data based on filtered companies
@@ -214,6 +249,34 @@ export default function Analytics() {
                 >
                   <FilterIcon className={`h-5 w-5 ${showFilterBar ? 'text-blue-600' : 'text-gray-500'}`} />
                 </button>
+                
+                {/* Interactive Filter Indicator */}
+                {(selectedIndustry || selectedCountry || selectedScoreRange) && (
+                  <div className="flex items-center space-x-2 px-3 py-1 bg-blue-50 border border-blue-200 rounded-full">
+                    <span className="text-xs text-blue-700 font-medium">Active Filters:</span>
+                    {selectedIndustry && (
+                      <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">
+                        Industry: {selectedIndustry}
+                      </span>
+                    )}
+                    {selectedCountry && (
+                      <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">
+                        Country: {selectedCountry}
+                      </span>
+                    )}
+                    {selectedScoreRange && (
+                      <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded">
+                        Score: {selectedScoreRange}-{selectedScoreRange + 4}
+                      </span>
+                    )}
+                    <button
+                      onClick={handleClearAllFilters}
+                      className="text-blue-600 hover:text-blue-800 text-xs font-medium"
+                    >
+                      Clear All
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -484,16 +547,26 @@ export default function Analytics() {
               Score Distribution
             </h3>
             <div className="h-80">
-                            <Bar
+              <Bar
                 data={{
                   labels: Object.keys(scoreRanges).map(score => score),
                   datasets: [
                     {
                       label: 'Number of Companies',
                       data: Object.values(scoreRanges),
-                      backgroundColor: 'rgba(59, 130, 246, 0.8)',
-                      borderColor: 'rgba(59, 130, 246, 1)',
-                      borderWidth: 1,
+                      backgroundColor: Object.keys(scoreRanges).map(score => 
+                        selectedScoreRange === Number(score) 
+                          ? 'rgba(239, 68, 68, 0.9)' 
+                          : 'rgba(59, 130, 246, 0.8)'
+                      ),
+                      borderColor: Object.keys(scoreRanges).map(score => 
+                        selectedScoreRange === Number(score) 
+                          ? 'rgba(239, 68, 68, 1)' 
+                          : 'rgba(59, 130, 246, 1)'
+                      ),
+                      borderWidth: Object.keys(scoreRanges).map(score => 
+                        selectedScoreRange === Number(score) ? 3 : 1
+                      ),
                       borderRadius: 4,
                       borderSkipped: false,
                     }
@@ -502,13 +575,24 @@ export default function Analytics() {
                 options={{
                   responsive: true,
                   maintainAspectRatio: false,
+                  onClick: (event, elements) => {
+                    if (elements.length > 0) {
+                      const index = elements[0].index
+                      const scoreRange = Number(Object.keys(scoreRanges)[index])
+                      handleScoreRangeClick(scoreRange)
+                    }
+                  },
+                  onHover: (event, elements) => {
+                    const target = event.native.target as HTMLElement
+                    target.style.cursor = elements.length > 0 ? 'pointer' : 'default'
+                  },
                   plugins: {
                     legend: {
                       display: false
                     },
                     tooltip: {
                       callbacks: {
-                        title: (context) => `Score ${context[0].label}`,
+                        title: (context) => `Score ${context[0].label}-${Number(context[0].label) + 4}`,
                         label: (context) => `${context.parsed.y} companies`
                       }
                     }
@@ -586,23 +670,38 @@ export default function Analytics() {
                 // Calculate bar width based on the highest count for better visibility
                 const maxCount = Math.max(...allIndustries.map(([, c]) => c))
                 const barWidth = maxCount > 0 ? (count / maxCount) * 100 : 0
+                const isSelected = selectedIndustry === industry
                 
                 return (
-                  <div key={industry} className="flex items-center justify-between py-1">
+                  <div 
+                    key={industry} 
+                    className={`flex items-center justify-between py-1 px-2 rounded-lg cursor-pointer transition-all duration-200 ${
+                      isSelected ? 'bg-purple-50 border border-purple-200' : 'hover:bg-gray-50'
+                    }`}
+                    onClick={() => handleIndustryClick(industry)}
+                  >
                     <div className="flex items-center space-x-3 min-w-0 flex-1">
-                      <span className="text-sm font-medium text-gray-400 w-8 flex-shrink-0">#{index + 1}</span>
-                      <span className="text-sm font-medium text-gray-700 break-words" title={industry}>
+                      <span className={`text-sm font-medium w-8 flex-shrink-0 ${
+                        isSelected ? 'text-purple-600' : 'text-gray-400'
+                      }`}>#{index + 1}</span>
+                      <span className={`text-sm font-medium break-words ${
+                        isSelected ? 'text-purple-700' : 'text-gray-700'
+                      }`} title={industry}>
                         {industry}
                       </span>
                     </div>
                     <div className="flex items-center space-x-3 ml-4 flex-shrink-0">
                       <div className="w-32 bg-gray-200 rounded-full h-3">
                         <div 
-                          className="bg-purple-600 h-3 rounded-full transition-all duration-300" 
+                          className={`h-3 rounded-full transition-all duration-300 ${
+                            isSelected ? 'bg-purple-700' : 'bg-purple-600'
+                          }`}
                           style={{ width: `${barWidth}%` }}
                         ></div>
                       </div>
-                      <span className="text-sm font-medium text-gray-700 w-16 text-right">{count}</span>
+                      <span className={`text-sm font-medium w-16 text-right ${
+                        isSelected ? 'text-purple-700' : 'text-gray-700'
+                      }`}>{count}</span>
                     </div>
                   </div>
                 )
@@ -621,23 +720,38 @@ export default function Analytics() {
                 // Calculate bar width based on the highest count for better visibility
                 const maxCount = Math.max(...allCountries.map(([, c]) => c))
                 const barWidth = maxCount > 0 ? (count / maxCount) * 100 : 0
+                const isSelected = selectedCountry === country
                 
                 return (
-                  <div key={country} className="flex items-center justify-between py-1">
+                  <div 
+                    key={country} 
+                    className={`flex items-center justify-between py-1 px-2 rounded-lg cursor-pointer transition-all duration-200 ${
+                      isSelected ? 'bg-green-50 border border-green-200' : 'hover:bg-gray-50'
+                    }`}
+                    onClick={() => handleCountryClick(country)}
+                  >
                     <div className="flex items-center space-x-3 min-w-0 flex-1">
-                      <span className="text-sm font-medium text-gray-400 w-8 flex-shrink-0">#{index + 1}</span>
-                      <span className="text-sm font-medium text-gray-700 break-words" title={country}>
+                      <span className={`text-sm font-medium w-8 flex-shrink-0 ${
+                        isSelected ? 'text-green-600' : 'text-gray-400'
+                      }`}>#{index + 1}</span>
+                      <span className={`text-sm font-medium break-words ${
+                        isSelected ? 'text-green-700' : 'text-gray-700'
+                      }`} title={country}>
                         {country}
                       </span>
                     </div>
                     <div className="flex items-center space-x-3 ml-4 flex-shrink-0">
                       <div className="w-32 bg-gray-200 rounded-full h-3">
                         <div 
-                          className="bg-green-600 h-3 rounded-full transition-all duration-300" 
+                          className={`h-3 rounded-full transition-all duration-300 ${
+                            isSelected ? 'bg-green-700' : 'bg-green-600'
+                          }`}
                           style={{ width: `${barWidth}%` }}
                         ></div>
                       </div>
-                      <span className="text-sm font-medium text-gray-700 w-16 text-right">{count}</span>
+                      <span className={`text-sm font-medium w-16 text-right ${
+                        isSelected ? 'text-green-700' : 'text-gray-700'
+                      }`}>{count}</span>
                     </div>
                   </div>
                 )
