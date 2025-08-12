@@ -194,6 +194,17 @@ export default function Analytics() {
   const allIndustries = Object.entries(industryCounts)
     .sort(([,a], [,b]) => b - a)
 
+  // Top sub-industries by company count
+  const subIndustryCounts = filteredCompanies.reduce((acc, company) => {
+    if (company.subIndustry) {
+      acc[company.subIndustry] = (acc[company.subIndustry] || 0) + 1
+    }
+    return acc
+  }, {} as Record<string, number>)
+  
+  const allSubIndustries = Object.entries(subIndustryCounts)
+    .sort(([,a], [,b]) => b - a)
+
   // Top countries by company count
   const countryCounts = filteredCompanies.reduce((acc, company) => {
     acc[company.country] = (acc[company.country] || 0) + 1
@@ -416,9 +427,9 @@ export default function Analytics() {
                     </div>
                   )}
                 </div>
-                {/* Subsector Multi-select */}
+                {/* Sub-industry Multi-select */}
                 <div className="relative min-w-[150px]" ref={subIndustryDropdownRef}>
-                  <label className="block font-sans text-xs text-gray-500 mb-1">Subsector</label>
+                  <label className="block font-sans text-xs text-gray-500 mb-1">Sub-industry</label>
                   <div
                     className="border border-gray-300 rounded px-2 py-1 text-sm bg-white cursor-pointer flex flex-wrap gap-1 min-h-[36px] items-center"
                     onClick={() => { setOpenSubIndustry(v => !v); setOpenCountry(false); setOpenIndustry(false); }}
@@ -657,8 +668,8 @@ export default function Analytics() {
           </div>
         </div>
 
-        {/* Top Industries and Countries */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        {/* Top Industries, Sub-Industries, and Countries */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           {/* Top Industries */}
           <div className="bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
             <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
@@ -701,6 +712,58 @@ export default function Analytics() {
                       </div>
                       <span className={`text-sm font-medium w-16 text-right ${
                         isSelected ? 'text-purple-700' : 'text-gray-700'
+                      }`}>{count}</span>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* Top Sub-Industries */}
+          <div className="bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+              <Building2 className="h-5 w-5 mr-2 text-blue-600" />
+              All Sub-Industries ({allSubIndustries.length})
+            </h3>
+            <div className="max-h-96 overflow-y-auto space-y-3 pr-2">
+              {allSubIndustries.map(([subIndustry, count], index) => {
+                // Calculate bar width based on the highest count for better visibility
+                const maxCount = Math.max(...allSubIndustries.map(([, c]) => c))
+                const barWidth = maxCount > 0 ? (count / maxCount) * 100 : 0
+                const isSelected = subIndustryFilter.includes(subIndustry)
+                
+                return (
+                  <div 
+                    key={subIndustry} 
+                    className={`flex items-center justify-between py-1 px-2 rounded-lg cursor-pointer transition-all duration-200 ${
+                      isSelected ? 'bg-blue-50 border border-blue-200' : 'hover:bg-gray-50'
+                    }`}
+                    onClick={() => {
+                      setSubIndustryFilter([subIndustry])
+                    }}
+                  >
+                    <div className="flex items-center space-x-3 min-w-0 flex-1">
+                      <span className={`text-sm font-medium w-8 flex-shrink-0 ${
+                        isSelected ? 'text-blue-600' : 'text-gray-400'
+                      }`}>#{index + 1}</span>
+                      <span className={`text-sm font-medium break-words ${
+                        isSelected ? 'text-blue-700' : 'text-gray-700'
+                      }`} title={subIndustry}>
+                        {subIndustry}
+                      </span>
+                    </div>
+                    <div className="flex items-center space-x-3 ml-4 flex-shrink-0">
+                      <div className="w-32 bg-gray-200 rounded-full h-3">
+                        <div 
+                          className={`h-3 rounded-full transition-all duration-300 ${
+                            isSelected ? 'bg-blue-700' : 'bg-blue-600'
+                          }`}
+                          style={{ width: `${barWidth}%` }}
+                        ></div>
+                      </div>
+                      <span className={`text-sm font-medium w-16 text-right ${
+                        isSelected ? 'text-blue-700' : 'text-gray-700'
                       }`}>{count}</span>
                     </div>
                   </div>
