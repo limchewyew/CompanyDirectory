@@ -268,11 +268,11 @@ export default function Home() {
         <div className="w-11/12 mx-auto px-6 py-2">
           <div className="flex items-center justify-between">
             <p className="text-3xl text-gray-700 font-montserrat font-semibold">Company Directory</p>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  className="p-2 bg-slate-100 rounded-lg hover:bg-slate-200 border border-slate-200 transition-colors"
+                  className="p-2 bg-slate-100 rounded-lg hover:bg-slate-200 border border-slate-200 transition-colors self-stretch flex items-center"
                   aria-label="Show filters"
                   onClick={() => {
                     setShowFilterBar(v => !v);
@@ -283,7 +283,7 @@ export default function Home() {
                 </button>
                 <button
                   type="button"
-                  className="flex items-center px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm font-medium transition-colors whitespace-nowrap border border-slate-200 h-10"
+                  className="flex items-center justify-center w-36 h-10 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm font-medium transition-colors whitespace-nowrap border border-slate-200"
                   onClick={() => {
                     setRandomCount(prev => prev + 1); // Increment to trigger re-render
                     setShowFilterBar(false); // Close filter bar when using surprise me
@@ -295,16 +295,20 @@ export default function Home() {
                   </svg>
                   Surprise Me
                 </button>
-              </div>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
-                <input
-                  type="text"
-                  placeholder="Search companies..."
-                  className="pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent transition-colors h-10"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
+                <div className="relative w-36 h-10">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                  </div>
+                  <input
+                    type="text"
+                    className="block w-full h-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                    placeholder="Search"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
               </div>
             </div>
           </div>
