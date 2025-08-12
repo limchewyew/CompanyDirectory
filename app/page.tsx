@@ -450,7 +450,7 @@ export default function Home() {
                 </div>
                 {/* Subsector Multi-select */}
                 <div className="relative min-w-[150px]" ref={subIndustryDropdownRef}>
-                  <label className="block font-sans text-xs text-gray-500 mb-1">Subsector</label>
+                  <label className="block font-sans text-xs text-gray-500 mb-1">Sub-industry</label>
                   <div
                     className="border border-gray-300 rounded px-2 py-1 text-sm bg-white cursor-pointer flex flex-wrap gap-1 min-h-[36px] items-center"
                     onClick={() => { setOpenSubIndustry(v => !v); setOpenCountry(false); setOpenIndustry(false); }}
