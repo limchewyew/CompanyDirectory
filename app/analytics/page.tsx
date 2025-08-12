@@ -194,6 +194,18 @@ export default function Analytics() {
   const allIndustries = Object.entries(industryCounts)
     .sort(([,a], [,b]) => b - a)
 
+  // Top sub-industries by company count
+  const subIndustryCounts = filteredCompanies.reduce((acc, company) => {
+    if (company.subIndustry) {
+      acc[company.subIndustry] = (acc[company.subIndustry] || 0) + 1
+    }
+    return acc
+  }, {} as Record<string, number>)
+  
+  const allSubIndustries = Object.entries(subIndustryCounts)
+    .sort(([,a], [,b]) => b - a)
+    .slice(0, 20) // Limit to top 20 sub-industries to prevent overcrowding
+
   // Top countries by company count
   const countryCounts = filteredCompanies.reduce((acc, company) => {
     acc[company.country] = (acc[company.country] || 0) + 1
@@ -658,15 +670,17 @@ export default function Analytics() {
         </div>
 
         {/* Top Industries, Sub-Industries, and Countries */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          {/* Top Industries */}
-          <div className="bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-              <Building2 className="h-5 w-5 mr-2 text-purple-600" />
-              All Industries ({allIndustries.length})
-            </h3>
-            <div className="max-h-96 overflow-y-auto space-y-3 pr-2">
-              {allIndustries.map(([industry, count], index) => {
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
+          {/* Left column - Industry and Sub-industry */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Industry Chart */}
+            <div className="bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                <Building2 className="h-5 w-5 mr-2 text-purple-600" />
+                All Industries ({allIndustries.length})
+              </h3>
+              <div className="max-h-96 overflow-y-auto space-y-3 pr-2">
+                {allIndustries.map(([industry, count], index) => {
                 // Calculate bar width based on the highest count for better visibility
                 const maxCount = Math.max(...allIndustries.map(([, c]) => c))
                 const barWidth = maxCount > 0 ? (count / maxCount) * 100 : 0
@@ -705,18 +719,58 @@ export default function Analytics() {
                     </div>
                   </div>
                 )
-              })}
+                })}
+              </div>
+            </div>
+
+            {/* Sub-industry Chart */}
+            <div className="bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                <Building2 className="h-5 w-5 mr-2 text-blue-600" />
+                Top Sub-Industries ({allSubIndustries.length})
+              </h3>
+              <div className="max-h-96 overflow-y-auto space-y-3 pr-2">
+                {allSubIndustries.map(([subIndustry, count], index) => {
+                  // Calculate bar width based on the highest count for better visibility
+                  const maxCount = Math.max(...allSubIndustries.map(([, c]) => c))
+                  const barWidth = maxCount > 0 ? (count / maxCount) * 100 : 0
+                  
+                  return (
+                    <div 
+                      key={subIndustry} 
+                      className="flex items-center justify-between py-1 px-2 rounded-lg hover:bg-gray-50 transition-all duration-200"
+                    >
+                      <div className="flex items-center space-x-3 min-w-0 flex-1">
+                        <span className="text-sm font-medium w-8 flex-shrink-0 text-gray-400">#{index + 1}</span>
+                        <span className="text-sm font-medium text-gray-700 break-words" title={subIndustry}>
+                          {subIndustry}
+                        </span>
+                      </div>
+                      <div className="flex items-center space-x-3 ml-4 flex-shrink-0">
+                        <div className="w-32 bg-gray-200 rounded-full h-3">
+                          <div 
+                            className="h-3 rounded-full transition-all duration-300 bg-blue-600"
+                            style={{ width: `${barWidth}%` }}
+                          ></div>
+                        </div>
+                        <span className="text-sm font-medium text-gray-700 w-16 text-right">{count}</span>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
             </div>
           </div>
 
-          {/* Top Countries */}
-          <div className="bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-              <Globe className="h-5 w-5 mr-2 text-green-600" />
-              All Countries ({allCountries.length})
-            </h3>
-            <div className="max-h-96 overflow-y-auto space-y-3 pr-2">
-              {allCountries.map(([country, count], index) => {
+          {/* Right column - Countries */}
+          <div className="lg:col-span-2">
+            <div className="bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                <Globe className="h-5 w-5 mr-2 text-green-600" />
+                All Countries ({allCountries.length})
+              </h3>
+              <div className="max-h-96 overflow-y-auto space-y-3 pr-2">
+                {allCountries.map(([country, count], index) => {
                 // Calculate bar width based on the highest count for better visibility
                 const maxCount = Math.max(...allCountries.map(([, c]) => c))
                 const barWidth = maxCount > 0 ? (count / maxCount) * 100 : 0
@@ -755,7 +809,8 @@ export default function Analytics() {
                     </div>
                   </div>
                 )
-              })}
+                })}
+              </div>
             </div>
           </div>
         </div>
