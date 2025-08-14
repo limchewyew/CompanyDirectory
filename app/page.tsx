@@ -507,7 +507,7 @@ export default function Home() {
               <div className="ml-auto flex items-center">
                 <button
                   type="button"
-                  className="px-4 py-2 mt-4 bg-white border border-gray-200 rounded-md hover:bg-gray-50 text-gray-600 font-medium text-sm transition-colors self-center shadow-sm hover:shadow"
+                  className="px-4 py-2 mt-4 bg-white border border-gray-300 rounded hover:bg-gray-100 text-gray-600 font-sans text-xs font-medium transition-all self-center"
                   onClick={handleClearAllFilters}
                 >
                   Clear All Filters
@@ -524,12 +524,12 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
             <div className="flex items-center">
-              <div className="h-12 w-12 flex items-center justify-center rounded-lg bg-indigo-50 border border-indigo-100">
-                <Star className="h-6 w-6 text-indigo-600" />
+              <div className="h-12 w-12 flex items-center justify-center rounded-lg bg-slate-100 border border-slate-200">
+                <Star className="h-6 w-6 text-slate-600" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">Average Total Score</p>
-                <p className="text-2xl font-bold text-gray-800">
+                <p className="text-sm font-medium text-slate-600">Average Total Score</p>
+                <p className="text-2xl font-bold text-slate-900">
                   {filteredCompanies.length > 0 ? (filteredCompanies.reduce((sum, company) => sum + Number(company.total ?? 0), 0) / filteredCompanies.length).toFixed(2) : '0.00'}
                 </p>
               </div>
@@ -537,23 +537,23 @@ export default function Home() {
           </div>
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
             <div className="flex items-center">
-              <div className="h-12 w-12 flex items-center justify-center rounded-lg bg-green-50 border border-green-100">
-                <Building2 className="h-6 w-6 text-green-600" />
+              <div className="h-12 w-12 flex items-center justify-center rounded-lg bg-blue-50 border border-blue-200">
+                <Building2 className="h-6 w-6 text-blue-700" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">Total Companies</p>
-                <p className="text-2xl font-bold text-gray-800">{filteredCompanies.length.toLocaleString()}</p>
+                <p className="text-sm font-medium text-slate-600">Total Companies</p>
+                <p className="text-2xl font-bold text-slate-900">{filteredCompanies.length.toLocaleString()}</p>
               </div>
             </div>
           </div>
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
             <div className="flex items-center">
-              <div className="h-12 w-12 flex items-center justify-center rounded-lg bg-blue-50 border border-blue-100">
-                <Globe className="h-6 w-6 text-blue-600" />
+              <div className="h-12 w-12 flex items-center justify-center rounded-lg bg-emerald-50 border border-emerald-200">
+                <Globe className="h-6 w-6 text-emerald-700" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">Countries</p>
-                <p className="text-2xl font-bold text-gray-800">
+                <p className="text-sm font-medium text-slate-600">Countries</p>
+                <p className="text-2xl font-bold text-slate-900">
                   {new Set(filteredCompanies.map(c => c.country)).size}
                 </p>
               </div>
@@ -562,15 +562,15 @@ export default function Home() {
         </div>
 
         {/* Table */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="min-w-11/12 divide-y divide-gray-200 table-auto">
-              <thead className="bg-gray-50 border-b border-gray-200">
+              <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">#</th>
-                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider sticky left-0 z-10 bg-gray-50">Logo</th>
+                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
+                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider sticky left-0 z-10 bg-white">Logo</th>
                   <th 
-                    className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider sticky left-16 z-10 bg-gray-50 cursor-pointer select-none hover:bg-gray-100 transition-colors" 
+                    className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider sticky left-16 z-10 bg-white cursor-pointer select-none" 
                     onClick={() => {
                       setSortBy('name');
                       setSortOrder(sortBy === 'name' && sortOrder === 'asc' ? 'desc' : 'asc');
@@ -646,13 +646,11 @@ export default function Home() {
                   const maxTotal = Math.max(...totals);
                   // Helper to map total to color (red to green)
                   const getTotalColor = (value: number) => {
-                    if (maxTotal === minTotal) return 'bg-green-50 text-green-800 border border-green-100';
+                    if (maxTotal === minTotal) return 'hsl(120, 70%, 80%)'; // all same, use green
                     // Linear interpolation: 0 -> red, 0.5 -> yellow, 1 -> green
                     const ratio = (value - minTotal) / (maxTotal - minTotal);
-                    
-                    if (ratio > 0.7) return 'bg-green-50 text-green-800 border border-green-100';
-                    if (ratio > 0.4) return 'bg-yellow-50 text-yellow-800 border border-yellow-100';
-                    return 'bg-red-50 text-red-800 border border-red-100';
+                    const hue = 0 + (120 - 0) * ratio; // 0=red, 120=green
+                    return `hsl(${hue}, 70%, 80%)`;
                   };
                   // Pagination: calculate current page's companies
                   const startIdx = (currentPage - 1) * rowsPerPage;
@@ -662,17 +660,16 @@ export default function Home() {
                     <tr key={company.id} className="hover:bg-gray-50">
                       <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900 text-center">{startIdx + index + 1}</td>
                       <td className="px-4 py-2 whitespace-nowrap text-center sticky left-0 bg-white z-10">
-                        <div className="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden border border-gray-200">
-                      <img
-                        className="h-8 w-8 object-contain"
-                        src={company.logo || `https://ui-avatars.com/api/?name=${company.name}&background=random`}
-                        alt={company.name}
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.src = `https://ui-avatars.com/api/?name=${company.name}&background=random`;
-                        }}
-                      />
-                    </div>
+                        <img
+                          className="h-10 w-10 rounded-full mx-auto object-contain bg-white"
+                          style={{ objectFit: 'contain', width: '40px', height: '40px', borderRadius: '9999px', background: 'white' }}
+                          src={company.logo || `https://ui-avatars.com/api/?name=${company.name}&background=random`}
+                          alt={company.name}
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src = `https://ui-avatars.com/api/?name=${company.name}&background=random`;
+                          }}
+                        />
                       </td>
                       <td className="px-4 py-2 whitespace-nowrap text-sm text-center sticky left-16 bg-white z-10">{company.name}</td>
                       <td className="px-4 py-2 whitespace-normal text-sm text-left break-words min-w-[32rem]">{company.description}</td>
@@ -689,24 +686,18 @@ export default function Home() {
                           </a>
                         ) : '-'}
                       </td>
+                      <td className="px-4 py-2 whitespace-nowrap text-sm text-center">{company.country}</td>
                       <td className="px-4 py-2 whitespace-nowrap text-sm text-center">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-800">
-                          {company.country}
-                        </span>
+                        <div className="font-medium">{company.industry}</div>
+                        <div className="text-xs text-gray-500 mt-1">{company.subIndustry}</div>
                       </td>
-                      <td className="px-4 py-2 whitespace-nowrap text-sm text-center">
-                        <div className="font-medium text-gray-700">{company.industry}</div>
-                        <div className="text-xs text-gray-500 mt-0.5">{company.subIndustry}</div>
-                      </td>
-                      <td className="px-4 py-2 text-sm text-center text-gray-600">{company.yearFounded}</td>
-                      <td className="px-4 py-2 text-sm text-center text-gray-600">{company.employees}</td>
-                      <td className="px-4 py-2 w-24 whitespace-nowrap text-sm text-center font-medium text-gray-700">{company.history}</td>
-                      <td className="px-4 py-2 w-24 whitespace-nowrap text-sm text-center font-medium text-gray-700">{company.brandAwareness}</td>
-                      <td className={`px-4 py-2 whitespace-nowrap text-sm text-center font-semibold rounded ${getTotalColor(company.total)}`}>
-                        {company.total}
-                      </td>
-                      <td className="px-4 py-2 w-24 whitespace-nowrap text-sm text-center font-medium text-gray-700">{company.size}</td>
-                      <td className="px-4 py-2 w-24 whitespace-nowrap text-sm text-center font-medium text-gray-700">{company.innovation}</td>
+                      <td className="px-4 py-2 text-sm text-center">{company.yearFounded}</td>
+                      <td className="px-4 py-2 text-sm text-center">{company.employees}</td>
+                      <td className="px-4 py-2 w-24 whitespace-nowrap text-sm text-center">{company.history}</td>
+                      <td className="px-4 py-2 w-24 whitespace-nowrap text-sm text-center">{company.brandAwareness}</td>
+                      <td className="px-4 py-2 w-24 whitespace-nowrap text-sm text-center">{company.moat}</td>
+                      <td className="px-4 py-2 w-24 whitespace-nowrap text-sm text-center">{company.size}</td>
+                      <td className="px-4 py-2 w-24 whitespace-nowrap text-sm text-center">{company.innovation}</td>
                       <td className="px-4 py-2 whitespace-nowrap text-sm text-center">
                         <span
                           style={{
