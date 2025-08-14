@@ -61,12 +61,17 @@ export default async function ListDetailPage({ params }: { params: { id: string 
               return (
                 <li key={it.id} className="px-4 py-3 flex items-center justify-between">
                   <div>
-                    <div className="font-medium text-gray-800">{c?.name || `Company`}</div>
+                    <a href={`/companies/${it.companyId}`} className="font-medium text-blue-700 hover:underline">
+                      {c?.name || `Company`}
+                    </a>
                     {c?.industry && <div className="text-xs text-gray-500">{c.industry}</div>}
                   </div>
-                  {isOwner && (
-                    <RemoveItemButton listId={params.id} companyId={it.companyId} />
-                  )}
+                  <div className="flex items-center gap-3">
+                    <a href={`/companies/${it.companyId}`} className="text-sm text-blue-600 hover:underline">View</a>
+                    {isOwner && (
+                      <RemoveItemButton listId={params.id} companyId={it.companyId} />
+                    )}
+                  </div>
                 </li>
               );
             })
