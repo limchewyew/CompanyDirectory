@@ -509,53 +509,57 @@ export default function Analytics() {
         </div>
       </div>
 
-      <div className="w-11/12 mx-auto px-6 py-6">
+       <div className="w-11/12 mx-auto px-6 py-6">
         {/* Overview Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
+          {/* Total Companies */}
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
             <div className="flex items-center">
-              <div className="h-14 w-14 flex items-center justify-center rounded-full bg-gradient-to-br from-blue-200 via-blue-400 to-blue-600 shadow-lg border border-blue-300">
-                <Building2 className="h-8 w-8 text-blue-600 drop-shadow-[0_2px_4px_rgba(0,0,0,0.15)]" />
+              <div className="h-12 w-12 flex items-center justify-center rounded-lg bg-blue-50 border border-blue-200">
+                <Building2 className="h-6 w-6 text-blue-700" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Companies</p>
-                <p className="text-2xl font-bold text-gray-900">{totalCompanies.toLocaleString()}</p>
+                <p className="text-sm font-medium text-slate-600">Total Companies</p>
+                <p className="text-2xl font-bold text-slate-900">{totalCompanies.toLocaleString()}</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
+          {/* Countries */}
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
             <div className="flex items-center">
-              <div className="h-14 w-14 flex items-center justify-center rounded-full bg-gradient-to-br from-green-200 via-green-400 to-green-600 shadow-lg border border-green-300">
-                <Globe className="h-8 w-8 text-green-600 drop-shadow-[0_2px_4px_rgba(0,0,0,0.15)]" />
+              <div className="h-12 w-12 flex items-center justify-center rounded-lg bg-emerald-50 border border-emerald-200">
+                <Globe className="h-6 w-6 text-emerald-700" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Countries</p>
-                <p className="text-2xl font-bold text-gray-900">{countries}</p>
+                <p className="text-sm font-medium text-slate-600">Countries</p>
+                <p className="text-2xl font-bold text-slate-900">{countries}</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
+          {/* Industries */}
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
             <div className="flex items-center">
-              <div className="h-14 w-14 flex items-center justify-center rounded-full bg-gradient-to-br from-purple-200 via-purple-400 to-purple-600 shadow-lg border border-purple-300">
-                <BarChart3 className="h-8 w-8 text-purple-600 drop-shadow-[0_2px_4px_rgba(0,0,0,0.15)]" />
+              <div className="h-12 w-12 flex items-center justify-center rounded-lg bg-purple-50 border border-purple-200">
+                <BarChart3 className="h-6 w-6 text-purple-700" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Industries</p>
-                <p className="text-2xl font-bold text-gray-900">{industries}</p>
+                <p className="text-sm font-medium text-slate-600">Industries</p>
+                <p className="text-2xl font-bold text-slate-900">{industries}</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
+          {/* Avg Total Score */}
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
             <div className="flex items-center">
-              <div className="h-14 w-14 flex items-center justify-center rounded-full bg-gradient-to-br from-yellow-200 via-yellow-400 to-yellow-600 shadow-lg border border-yellow-300">
-                <TrendingUp className="h-8 w-8 text-yellow-600 drop-shadow-[0_2px_4px_rgba(0,0,0,0.15)]" />
+              <div className="h-12 w-12 flex items-center justify-center rounded-lg bg-yellow-50 border border-yellow-200">
+                <TrendingUp className="h-6 w-6 text-yellow-700" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Avg Total Score</p>
-                <p className="text-2xl font-bold text-gray-900">{avgTotal.toFixed(1)}</p>
+                <p className="text-sm font-medium text-slate-600">Avg Total Score</p>
+                <p className="text-2xl font-bold text-slate-900">{avgTotal.toFixed(1)}</p>
               </div>
             </div>
           </div>
