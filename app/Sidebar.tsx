@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { FaHome, FaQuestionCircle, FaChartBar, FaDatabase } from 'react-icons/fa';
+import { FaHome, FaQuestionCircle, FaChartBar, FaDatabase, FaList } from 'react-icons/fa';
 import './globals.css';
 
 export default function Sidebar() {
@@ -87,6 +87,17 @@ export default function Sidebar() {
           title="Collector"
         >
           <FaDatabase size={24} />
+        </a>
+      </Link>
+      <Link href="/lists" legacyBehavior>
+        <a
+          style={{
+            ...iconStyle,
+            ...(pathname === '/lists' ? activeStyle : {}),
+          } as React.CSSProperties}
+          title="Lists"
+        >
+          <FaList size={24} />
         </a>
       </Link>
     </aside>
