@@ -78,6 +78,10 @@ export default function Home() {
   const [openCountry, setOpenCountry] = useState(false);
   const [openIndustry, setOpenIndustry] = useState(false);
   const [openSubIndustry, setOpenSubIndustry] = useState(false);
+  
+  // Shortlist state
+  const [shortlistedCompanies, setShortlistedCompanies] = useState<number[]>([]);
+  const [showShortlisted, setShowShortlisted] = useState<boolean | null>(null);
 
   // Filter search states
   const [countrySearch, setCountrySearch] = useState('');
@@ -142,8 +146,11 @@ export default function Home() {
       const matchesSubIndustry = subIndustryFilter.length > 0 ? subIndustryFilter.includes(company.subIndustry) : true;
       const matchesTotalMin = totalMin !== '' ? company.total >= Number(totalMin) : true;
       const matchesTotalMax = totalMax !== '' ? company.total <= Number(totalMax) : true;
+      const matchesShortlist = showShortlisted !== null 
+        ? (showShortlisted ? shortlistedCompanies.includes(company.id) : !shortlistedCompanies.includes(company.id))
+        : true;
       
-      return matchesSearch && matchesCountry && matchesIndustry && matchesSubIndustry && matchesTotalMin && matchesTotalMax;
+      return matchesSearch && matchesCountry && matchesIndustry && matchesSubIndustry && matchesTotalMin && matchesTotalMax && matchesShortlist;
     });
 
     // Apply random company selection if randomCount is set
@@ -241,6 +248,30 @@ export default function Home() {
     setFilteredCompanies(filtered);
     setCurrentPage(1); // Reset to first page whenever filters change
   }, [companies, searchTerm, countryFilter, industryFilter, subIndustryFilter, totalMin, totalMax, sortBy, sortOrder]);
+
+  // Toggle shortlist
+  const toggleShortlist = (id: number) => {
+    setShortlistedCompanies(prev => 
+      prev.includes(id) 
+        ? prev.filter(companyId => companyId !== id)
+        : [...prev, id]
+    );
+  };
+
+  // Toggle filter bar
+  const toggleFilterBar = () => {
+    setShowFilterBar(!showFilterBar);
+  };
+
+  // Handle sort
+  const handleSort = (column: 'history' | 'brandAwareness' | 'moat' | 'size' | 'innovation' | 'total' | 'name' | 'yearFounded' | 'employees') => {
+    if (sortBy === column) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(column);
+      setSortOrder('desc');
+    }
+  };
 
   // Clear all filters handler
   const handleClearAllFilters = () => {
@@ -504,14 +535,40 @@ export default function Home() {
                 </div>
               </div>
               {/* Clear All Filters button at right */}
-              <div className="ml-auto flex items-center">
+              <div className="flex flex-wrap gap-2 mb-4 items-center">
+                <div className="flex gap-2 mr-2">
+                  <button
+                    onClick={() => setShowShortlisted(prev => prev === true ? null : true)}
+                    className={`px-3 py-1 rounded-md text-sm flex items-center gap-1 ${showShortlisted === true ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 hover:bg-gray-200'}`}
+                  >
+                    <Star size={14} fill={showShortlisted === true ? 'currentColor' : 'none'} />
+                    Shortlisted
+                  </button>
+                  {showShortlisted !== null && (
+                    <button
+                      onClick={() => setShowShortlisted(null)}
+                      className="px-2 py-1 text-gray-500 hover:text-gray-700 text-sm"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
                 <button
-                  type="button"
-                  className="px-4 py-2 mt-4 bg-white border border-gray-300 rounded hover:bg-gray-100 text-gray-600 font-sans text-xs font-medium transition-all self-center"
-                  onClick={handleClearAllFilters}
+                  onClick={toggleFilterBar}
+                  className="px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-md text-sm flex items-center gap-1"
                 >
-                  Clear All Filters
+                  <FilterIcon size={14} />
+                  {showFilterBar ? 'Hide Filters' : 'Show Filters'}
                 </button>
+                {showFilterBar && (
+                  <button
+                    type="button"
+                    className="px-4 py-2 mt-4 bg-white border border-gray-300 rounded hover:bg-gray-100 text-gray-600 font-sans text-xs font-medium transition-all self-center"
+                    onClick={handleClearAllFilters}
+                  >
+                    Clear All Filters
+                  </button>
+                )}
               </div>
 
             </div>
@@ -567,79 +624,83 @@ export default function Home() {
             <table className="min-w-11/12 divide-y divide-gray-200 table-auto">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
-                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider sticky left-0 z-10 bg-white">Logo</th>
-                  <th 
-                    className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider sticky left-16 z-10 bg-white cursor-pointer select-none" 
-                    onClick={() => {
-                      setSortBy('name');
-                      setSortOrder(sortBy === 'name' && sortOrder === 'asc' ? 'desc' : 'asc');
-                    }}
-                  >
-                    Name {sortBy === 'name' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
+                  <th scope="col" className="w-10 px-2 py-3">
+                    <span className="sr-only">Shortlist</span>
                   </th>
-                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[32rem]">Description</th>
-                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Website</th>
-                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Country</th>
-                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Industry</th>
+                  <th scope="col" className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sticky left-0 z-10 bg-white">
+                    <button 
+                      onClick={() => handleSort('name')} 
+                      className="flex items-center"
+                    >
+                      Company
+                      {sortBy === 'name' && (
+                        <span className="ml-1">
+                          {sortOrder === 'asc' ? '↑' : '↓'}
+                        </span>
+                      )}
+                    </button>
+                  </th>
+                  <th className="px-2 py-3 whitespace-normal text-sm text-left break-words min-w-[32rem]">Description</th>
+                  <th className="px-2 py-3 whitespace-nowrap text-sm text-center">Website</th>
+                  <th className="px-2 py-3 whitespace-nowrap text-sm text-center">Country</th>
+                  <th className="px-2 py-3 whitespace-nowrap text-sm text-center">Industry</th>
                   <th 
-                    className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none"
+                    className="px-2 py-3 text-sm text-center whitespace-nowrap cursor-pointer select-none"
                     onClick={() => {
                       setSortBy('yearFounded');
                       setSortOrder(sortBy === 'yearFounded' && sortOrder === 'asc' ? 'desc' : 'asc');
                     }}
                   >
-                    Year Founded {sortBy === 'yearFounded' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
+                    Year Founded {sortBy === 'yearFounded' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
                   </th>
                   <th 
-                    className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none"
+                    className="px-2 py-3 text-sm text-center whitespace-nowrap cursor-pointer select-none"
                     onClick={() => {
                       setSortBy('employees');
                       setSortOrder(sortBy === 'employees' && sortOrder === 'asc' ? 'desc' : 'asc');
                     }}
                   >
-                    Number of Employees {sortBy === 'employees' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
+                    Number of Employees {sortBy === 'employees' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
                   </th>
-                  <th className="px-4 py-3 w-24 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none" onClick={() => {
+                  <th className="px-2 py-3 w-24 whitespace-nowrap text-sm text-center cursor-pointer select-none" onClick={() => {
                     setSortBy('history');
                     setSortOrder(sortBy === 'history' && sortOrder === 'asc' ? 'desc' : 'asc');
                   }}>
-                    History {sortBy === 'history' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
+                    History {sortBy === 'history' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
                   </th>
-                  <th className="px-4 py-3 w-24 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none" onClick={() => {
+                  <th className="px-2 py-3 w-24 whitespace-nowrap text-sm text-center cursor-pointer select-none" onClick={() => {
                     setSortBy('brandAwareness');
                     setSortOrder(sortBy === 'brandAwareness' && sortOrder === 'asc' ? 'desc' : 'asc');
                   }}>
-                    Brand Awareness {sortBy === 'brandAwareness' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
+                    Brand Awareness {sortBy === 'brandAwareness' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
                   </th>
-                  <th className="px-4 py-3 w-24 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none" onClick={() => {
+                  <th className="px-2 py-3 w-24 whitespace-nowrap text-sm text-center cursor-pointer select-none" onClick={() => {
                     setSortBy('moat');
                     setSortOrder(sortBy === 'moat' && sortOrder === 'asc' ? 'desc' : 'asc');
                   }}>
-                    Moat {sortBy === 'moat' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
+                    Moat {sortBy === 'moat' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
                   </th>
-                  <th className="px-4 py-3 w-24 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none" onClick={() => {
+                  <th className="px-2 py-3 w-24 whitespace-nowrap text-sm text-center cursor-pointer select-none" onClick={() => {
                     setSortBy('size');
                     setSortOrder(sortBy === 'size' && sortOrder === 'asc' ? 'desc' : 'asc');
                   }}>
-                    Size {sortBy === 'size' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
+                    Size {sortBy === 'size' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
                   </th>
-                  <th className="px-4 py-3 w-24 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none" onClick={() => {
+                  <th className="px-2 py-3 w-24 whitespace-nowrap text-sm text-center cursor-pointer select-none" onClick={() => {
                     setSortBy('innovation');
                     setSortOrder(sortBy === 'innovation' && sortOrder === 'asc' ? 'desc' : 'asc');
                   }}>
-                    Innovation {sortBy === 'innovation' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
+                    Innovation {sortBy === 'innovation' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
                   </th>
-                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none" onClick={() => {
+                  <th className="px-2 py-3 text-sm text-center whitespace-nowrap cursor-pointer select-none" onClick={() => {
                     setSortBy('total');
                     setSortOrder(sortBy === 'total' && sortOrder === 'asc' ? 'desc' : 'asc');
                   }}>
-                    Total {sortBy === 'total' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
+                    Total {sortBy === 'total' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
                   </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                 {/* Compute min/max for total and color mapping */}
                 {(() => {
                   const totals = filteredCompanies.map(c => c.total);
                   const minTotal = Math.min(...totals);
@@ -657,23 +718,30 @@ export default function Home() {
                   const endIdx = startIdx + rowsPerPage;
                   const paginatedCompanies = filteredCompanies.slice(startIdx, endIdx);
                   return paginatedCompanies.map((company, index) => (
-                    <tr key={company.id} className="hover:bg-gray-50">
-                      <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900 text-center">{startIdx + index + 1}</td>
-                      <td className="px-4 py-2 whitespace-nowrap text-center sticky left-0 bg-white z-10">
-                        <img
-                          className="h-10 w-10 rounded-full mx-auto object-contain bg-white"
-                          style={{ objectFit: 'contain', width: '40px', height: '40px', borderRadius: '9999px', background: 'white' }}
-                          src={company.logo || `https://ui-avatars.com/api/?name=${company.name}&background=random`}
-                          alt={company.name}
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.src = `https://ui-avatars.com/api/?name=${company.name}&background=random`;
-                          }}
-                        />
+                    <tr key={company.id} className="border-b border-gray-200 hover:bg-gray-50">
+                      <td className="px-2 py-3 whitespace-nowrap">
+                        <button 
+                          onClick={() => toggleShortlist(company.id)}
+                          className="text-gray-300 hover:text-yellow-400 focus:outline-none"
+                          aria-label={shortlistedCompanies.includes(company.id) ? 'Remove from shortlist' : 'Add to shortlist'}
+                        >
+                          <Star 
+                            size={18} 
+                            fill={shortlistedCompanies.includes(company.id) ? 'currentColor' : 'none'} 
+                            className={shortlistedCompanies.includes(company.id) ? 'text-yellow-400' : ''}
+                          />
+                        </button>
                       </td>
-                      <td className="px-4 py-2 whitespace-nowrap text-sm text-center sticky left-16 bg-white z-10">{company.name}</td>
-                      <td className="px-4 py-2 whitespace-normal text-sm text-left break-words min-w-[32rem]">{company.description}</td>
-                      <td className="px-4 py-2 whitespace-nowrap text-center">
+                      <td className="px-2 py-3 whitespace-nowrap text-sm text-gray-900">
+                        <a href={company.website} target="_blank" rel="noopener noreferrer" className="flex items-center hover:underline">
+                          {company.logo && (
+                            <img src={company.logo} alt={company.name} className="h-6 w-6 mr-2 object-contain" />
+                          )}
+                          {company.name}
+                        </a>
+                      </td>
+                      <td className="px-2 py-3 whitespace-normal text-sm text-left break-words min-w-[32rem]">{company.description}</td>
+                      <td className="px-2 py-3 whitespace-nowrap text-sm text-center">
                         {company.website ? (
                           <a 
                             href={company.website.startsWith('http') ? company.website : `https://${company.website}`} 
@@ -686,28 +754,27 @@ export default function Home() {
                           </a>
                         ) : '-'}
                       </td>
-                      <td className="px-4 py-2 whitespace-nowrap text-sm text-center">{company.country}</td>
-                      <td className="px-4 py-2 whitespace-nowrap text-sm text-center">
+                      <td className="px-2 py-3 whitespace-nowrap text-sm text-center">{company.country}</td>
+                      <td className="px-2 py-3 whitespace-nowrap text-sm text-center">
                         <div className="font-medium">{company.industry}</div>
                         <div className="text-xs text-gray-500 mt-1">{company.subIndustry}</div>
                       </td>
-                      <td className="px-4 py-2 text-sm text-center">{company.yearFounded}</td>
-                      <td className="px-4 py-2 text-sm text-center">{company.employees}</td>
-                      <td className="px-4 py-2 w-24 whitespace-nowrap text-sm text-center">{company.history}</td>
-                      <td className="px-4 py-2 w-24 whitespace-nowrap text-sm text-center">{company.brandAwareness}</td>
-                      <td className="px-4 py-2 w-24 whitespace-nowrap text-sm text-center">{company.moat}</td>
-                      <td className="px-4 py-2 w-24 whitespace-nowrap text-sm text-center">{company.size}</td>
-                      <td className="px-4 py-2 w-24 whitespace-nowrap text-sm text-center">{company.innovation}</td>
-                      <td className="px-4 py-2 whitespace-nowrap text-sm text-center">
+                      <td className="px-2 py-3 text-sm text-center">{company.yearFounded}</td>
+                      <td className="px-2 py-3 text-sm text-center">{company.employees}</td>
+                      <td className="px-2 py-3 w-24 whitespace-nowrap text-sm text-center">{company.history}</td>
+                      <td className="px-2 py-3 w-24 whitespace-nowrap text-sm text-center">{company.brandAwareness}</td>
+                      <td className="px-2 py-3 w-24 whitespace-nowrap text-sm text-center">{company.moat}</td>
+                      <td className="px-2 py-3 w-24 whitespace-nowrap text-sm text-center">{company.size}</td>
+                      <td className="px-2 py-3 w-24 whitespace-nowrap text-sm text-center">{company.innovation}</td>
+                      <td className="px-2 py-3 whitespace-nowrap text-sm text-center">
                         <span
                           style={{
-                            background: getTotalColor(company.total),
-                            color: '#222',
-                            borderRadius: '9999px',
-                            padding: '0.25em 0.8em',
-                            fontWeight: 700,
+                            color: 'white',
+                            padding: '2px 6px',
+                            borderRadius: '4px',
+                            backgroundColor: `rgba(59, 130, 246, ${(company.total - minTotal) / (maxTotal - minTotal)})`,
                             display: 'inline-block',
-                            minWidth: 40,
+                            minWidth: '40px'
                           }}
                         >
                           {company.total}
