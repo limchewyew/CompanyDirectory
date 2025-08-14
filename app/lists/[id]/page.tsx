@@ -1,6 +1,8 @@
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 
+export const dynamic = 'force-dynamic';
+
 async function getList(id: string) {
   const res = await fetch(`${process.env.NEXTAUTH_URL || ''}/api/lists/${id}`, { cache: 'no-store' });
   if (!res.ok) return null;

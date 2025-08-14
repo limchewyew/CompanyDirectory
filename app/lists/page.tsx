@@ -2,10 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { signIn, signOut, useSession } from 'next-auth/react';
 
-export const metadata = {
-  title: 'Lists | Companies Directory',
-  description: 'Manage and view your saved lists.'
-};
+// Metadata is provided by app/lists/layout.tsx (server component)
 
 type List = { id: string; ownerEmail: string; name: string; isPublic: boolean; createdAt: string };
 
