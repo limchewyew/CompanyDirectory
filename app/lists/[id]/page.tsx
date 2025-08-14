@@ -32,16 +32,33 @@ export default async function ListDetailPage({ params }: { params: { id: string 
     <div className="w-11/12 mx-auto px-6 py-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-800">{list.name}</h1>
-          <p className="text-sm text-gray-500">Owner: {list.ownerEmail} {list.isPublic ? '(Public)' : '(Private)'}</p>
+          <p className="font-semibold text-gray-800">{list.name}</p>
+          <p className="text-xs text-gray-500">Owner: {list.ownerEmail}</p>
         </div>
         <a href="/lists" className="text-sm text-blue-600 hover:underline">Back to lists</a>
       </div>
 
       {isOwner && (
-        <div className="bg-white border rounded p-4">
-          <div className="mb-3 font-semibold text-gray-800">Add a company to this list</div>
-          <AddToListForm listId={params.id} companies={companies} />
+        <div className="bg-white border rounded p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="font-semibold text-gray-800">Add a company to this list</div>
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                if (!confirm('Delete this list? This cannot be undone.')) return;
+                const res = await fetch(`/api/lists/${params.id}`, { method: 'DELETE' });
+                if (res.ok) {
+                  if (typeof window !== 'undefined') window.location.href = '/lists';
+                } else {
+                  const err = await res.json().catch(() => ({}));
+                  alert(err.error || 'Failed to delete list');
+                }
+              }}
+            >
+              <button type="submit" className="text-sm px-3 py-1.5 rounded bg-red-600 hover:bg-red-700 text-white">Delete list</button>
+            </form>
+          </div>
+          <AddToListForm listId={params.id} />
         </div>
       )}
 
@@ -56,7 +73,7 @@ export default async function ListDetailPage({ params }: { params: { id: string 
               return (
                 <li key={it.id} className="px-4 py-3 flex items-center justify-between">
                   <div>
-                    <div className="font-medium text-gray-800">{c?.name || `Company #${it.companyId}`}</div>
+                    <div className="font-medium text-gray-800">{c?.name || `Company`}</div>
                     {c?.industry && <div className="text-xs text-gray-500">{c.industry}</div>}
                   </div>
                   {isOwner && (
