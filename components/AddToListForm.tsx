@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
-type Company = { id: string | number; name?: string };
+type Company = { id: string | number; name?: string; logo?: string };
 
 export default function AddToListForm({ listId }: { listId: string }) {
   const [query, setQuery] = useState('');
@@ -71,14 +71,20 @@ export default function AddToListForm({ listId }: { listId: string }) {
             {results.map((c) => (
               <li
                 key={String(c.id)}
-                className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
+                className="px-3 py-2 hover:bg-gray-100 cursor-pointer flex items-center gap-2"
                 onMouseDown={() => {
                   setQuery(c.name || '');
                   setSelectedId(String(c.id));
                   setShowList(false);
                 }}
               >
-                {c.name || `Company`}
+                {c.logo ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={c.logo} alt="" className="w-6 h-6 rounded object-cover border" />
+                ) : (
+                  <div className="w-6 h-6 rounded bg-gray-200" />
+                )}
+                <span>{c.name || `Company`}</span>
               </li>
             ))}
           </ul>

@@ -161,3 +161,19 @@ export async function removeItemFromList(listId: string, companyId: string, owne
     requestBody: { values: [['', '', '', '']] },
   });
 }
+
+// Aggregate counts of items per list for faster list index display
+export async function getItemCountsByList(): Promise<Record<string, number>> {
+  await ensureHeader('ListItems', ['id', 'listId', 'companyId', 'createdAt']);
+  const sheets = await getSheets();
+  const res = await sheets.spreadsheets.values.get({ spreadsheetId: SPREADSHEET_ID, range: `ListItems!A2:D` });
+  const rows: string[][] = res.data.values || [];
+  const counts: Record<string, number> = {};
+  for (const r of rows) {
+    const listId = r[1];
+    const companyId = r[2];
+    if (!listId || !companyId) continue; // skip blanked rows
+    counts[listId] = (counts[listId] || 0) + 1;
+  }
+  return counts;
+}

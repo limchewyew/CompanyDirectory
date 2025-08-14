@@ -4,7 +4,7 @@ import { signIn, signOut, useSession } from 'next-auth/react';
 
 // Metadata is provided by app/lists/layout.tsx (server component)
 
-type List = { id: string; ownerEmail: string; name: string; isPublic: boolean; createdAt: string };
+type List = { id: string; ownerEmail: string; name: string; isPublic: boolean; createdAt: string; itemCount?: number };
 
 export default function ListsPage() {
   const { data: session, status } = useSession();
@@ -103,7 +103,9 @@ export default function ListsPage() {
                 <li key={l.id} className="bg-white border rounded p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="font-semibold text-gray-800">{l.name}</p>
+                      <p className="font-semibold text-gray-800">{l.name} {typeof l.itemCount === 'number' && (
+                        <span className="ml-2 text-xs text-gray-500">({l.itemCount} {l.itemCount === 1 ? 'company' : 'companies'})</span>
+                      )}</p>
                       <p className="text-xs text-gray-500">Owner: {l.ownerEmail}</p>
                     </div>
                     <a href={`/lists/${l.id}`} className="text-blue-600 hover:underline text-sm">Open</a>

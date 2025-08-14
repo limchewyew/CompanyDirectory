@@ -26,6 +26,7 @@ export async function GET(req: Request) {
       id: idx + 1,
       name: row[0] || '',
       industry: row[3] || '',
+      logo: row[14] || '',
     }));
 
     const results = !q

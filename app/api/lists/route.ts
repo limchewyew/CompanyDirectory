@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import type { Session } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { createList, getListsForPublicOrOwner } from '@/lib/sheets';
+import { createList, getItemCountsByList, getListsForPublicOrOwner } from '@/lib/sheets';
 
 export const dynamic = 'force-dynamic';
 
@@ -10,8 +10,12 @@ export async function GET() {
   try {
     const session = (await getServerSession(authOptions)) as Session | null;
     const email = session?.user?.email || undefined;
-    const lists = await getListsForPublicOrOwner(email);
-    return NextResponse.json(lists);
+    const [lists, counts] = await Promise.all([
+      getListsForPublicOrOwner(email),
+      getItemCountsByList(),
+    ]);
+    const withCounts = lists.map(l => ({ ...l, itemCount: counts[l.id] || 0 }));
+    return NextResponse.json(withCounts);
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });
   }
