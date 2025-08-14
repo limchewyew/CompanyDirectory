@@ -62,17 +62,39 @@ export default function Home() {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [filteredCompanies, setFilteredCompanies] = useState<Company[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortBy, setSortBy] = useState<'history' | 'brandAwareness' | 'moat' | 'size' | 'innovation' | 'total' | 'name' | 'yearFounded' | 'employees'>('total');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [sortBy, setSortBy] = useState<keyof Company>('name');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [shortlisted, setShortlisted] = useState<number[]>([]);
+  const [shortlistFilter, setShortlistFilter] = useState<boolean | null>(null);
 
-  // Filter states (multi-select)
+  // Filter states
   const [countryFilter, setCountryFilter] = useState<string[]>([]);
   const [industryFilter, setIndustryFilter] = useState<string[]>([]);
   const [subIndustryFilter, setSubIndustryFilter] = useState<string[]>([]);
+  const [totalMin, setTotalMin] = useState('');
+  const [totalMax, setTotalMax] = useState('');
 
-  // Total min/max filter
-  const [totalMin, setTotalMin] = useState<string>('');
-  const [totalMax, setTotalMax] = useState<string>('');
+  // Load shortlisted companies from localStorage on component mount
+  useEffect(() => {
+    const savedShortlist = localStorage.getItem('shortlistedCompanies');
+    if (savedShortlist) {
+      setShortlisted(JSON.parse(savedShortlist));
+    }
+  }, []);
+
+  // Save shortlisted companies to localStorage when it changes
+  useEffect(() => {
+    localStorage.setItem('shortlistedCompanies', JSON.stringify(shortlisted));
+  }, [shortlisted]);
+
+  // Toggle company shortlist status
+  const toggleShortlist = (companyId: number) => {
+    setShortlisted(prev => 
+      prev.includes(companyId)
+        ? prev.filter(id => id !== companyId)
+        : [...prev, companyId]
+    );
+  };
 
   // Dropdown open states
   const [openCountry, setOpenCountry] = useState(false);
@@ -125,76 +147,52 @@ export default function Home() {
   const filteredIndustryOptions = industryOptions.filter(option => option.toLowerCase().includes(industrySearch.toLowerCase())).sort((a, b) => a.localeCompare(b));
   const filteredSubIndustryOptions = subIndustryOptions.filter(option => option.toLowerCase().includes(subIndustrySearch.toLowerCase())).sort((a, b) => a.localeCompare(b));
 
-  useEffect(() => {
-    // First apply all filters
-    let filtered = companies.filter(company => {
-      const matchesSearch = 
+  const filteredCompanies = useMemo(() => {
+    return companies.filter(company => {
+      const matchesSearch = searchTerm === '' || 
         company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         company.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        company.country.toLowerCase().includes(searchTerm.toLowerCase()) ||
         company.industry.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        company.subIndustry.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        company.yearFounded.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        company.employees.toLowerCase().includes(searchTerm.toLowerCase());
+        company.subIndustry.toLowerCase().includes(searchTerm.toLowerCase());
       
-      const matchesCountry = countryFilter.length > 0 ? countryFilter.includes(company.country) : true;
-      const matchesIndustry = industryFilter.length > 0 ? industryFilter.includes(company.industry) : true;
-      const matchesSubIndustry = subIndustryFilter.length > 0 ? subIndustryFilter.includes(company.subIndustry) : true;
-      const matchesTotalMin = totalMin !== '' ? company.total >= Number(totalMin) : true;
-      const matchesTotalMax = totalMax !== '' ? company.total <= Number(totalMax) : true;
-      
-      return matchesSearch && matchesCountry && matchesIndustry && matchesSubIndustry && matchesTotalMin && matchesTotalMax;
+      const matchesCountry = countryFilter.length === 0 || countryFilter.includes(company.country);
+      const matchesIndustry = industryFilter.length === 0 || industryFilter.includes(company.industry);
+      const matchesSubIndustry = subIndustryFilter.length === 0 || subIndustryFilter.includes(company.subIndustry);
+      const matchesTotalMin = totalMin === '' || company.total >= Number(totalMin);
+      const matchesTotalMax = totalMax === '' || company.total <= Number(totalMax);
+      const matchesShortlist = shortlistFilter === null || 
+        (shortlistFilter ? shortlisted.includes(company.id) : !shortlisted.includes(company.id));
+
+      return matchesSearch && matchesCountry && matchesIndustry && matchesSubIndustry && 
+             matchesTotalMin && matchesTotalMax && matchesShortlist;
     });
-
-    // Apply random company selection if randomCount is set
-    if (randomCount > 0 && filtered.length > 0) {
-      // Generate a new random index
-      let randomIndex = Math.floor(Math.random() * filtered.length);
-      
-      // If there's more than one company and we got the same index as last time, get a different one
-      if (filtered.length > 1 && randomIndexRef.current === randomIndex) {
-        randomIndex = (randomIndex + 1) % filtered.length;
-      }
-      
-      // Store the current index for next time
-      randomIndexRef.current = randomIndex;
-      
-      // Return just the one random company
-      if (filtered[randomIndex]) {
-        filtered = [filtered[randomIndex]];
-      }
-    }
-
-    // Then apply sorting
-    if (["history", "brandAwareness", "moat", "size", "innovation", "total"].includes(sortBy)) {
-      filtered = [...filtered].sort((a, b) => {
-        const aVal = Number(a[sortBy]) || 0;
-        const bVal = Number(b[sortBy]) || 0;
-        return sortOrder === "asc" ? aVal - bVal : bVal - aVal;
-      });
-    } else if (sortBy === "name") {
-      filtered = [...filtered].sort((a, b) => {
-        return sortOrder === 'asc'
+    
+    // Then sort
+    filtered.sort((a, b) => {
+      if (sortBy === 'name') {
+        return sortOrder === 'asc' 
           ? a.name.localeCompare(b.name)
           : b.name.localeCompare(a.name);
-      });
-    } else if (sortBy === "yearFounded") {
-      filtered = [...filtered].sort((a, b) => {
+      } else if (["history", "brandAwareness", "moat", "size", "innovation", "total"].includes(sortBy)) {
+        const aVal = Number(a[sortBy]) || 0;
+        const bVal = Number(b[sortBy]) || 0;
+        return sortOrder === 'asc' ? aVal - bVal : bVal - aVal;
+      } else if (sortBy === "yearFounded") {
         const aVal = Number(a.yearFounded) || 0;
         const bVal = Number(b.yearFounded) || 0;
-        return sortOrder === "asc" ? aVal - bVal : bVal - aVal;
-      });
-    } else if (sortBy === "employees") {
-      filtered = [...filtered].sort((a, b) => {
+        return sortOrder === 'asc' ? aVal - bVal : bVal - aVal;
+      } else if (sortBy === "employees") {
         const aVal = Number(a.employees) || 0;
         const bVal = Number(b.employees) || 0;
-        return sortOrder === "asc" ? aVal - bVal : bVal - aVal;
-      });
-    }
+        return sortOrder === 'asc' ? aVal - bVal : bVal - aVal;
+      }
+      return 0;
+    });
+  }, [searchTerm, sortBy, sortOrder, companies, countryFilter, industryFilter, subIndustryFilter, totalMin, totalMax, shortlistFilter, shortlisted]);
 
-    setFilteredCompanies(filtered);
-
-  }, [searchTerm, sortBy, sortOrder, companies, countryFilter, industryFilter, subIndustryFilter, totalMin, totalMax, randomCount]);
+  useEffect(() => {
+    setFilteredCompanies(filteredCompanies);
+  }, [filteredCompanies]);
 
   useEffect(() => {
     // First apply all filters
@@ -252,6 +250,9 @@ export default function Home() {
     setSubIndustrySearch('');
     setTotalMin('');
     setTotalMax('');
+    setSearchTerm('');
+    setShortlistFilter(null);
+    setCurrentPage(1);
   };
 
   return (
@@ -448,6 +449,33 @@ export default function Home() {
                     </div>
                   )}
                 </div>
+                {/* Shortlist Filter */}
+                <div className="relative min-w-[150px]">
+                  <label className="block font-sans text-xs text-gray-500 mb-1">Shortlisted</label>
+                  <div className="flex gap-2">
+                    <button
+                      className={`px-3 py-1 text-xs rounded border ${shortlistFilter === true ? 'bg-blue-100 border-blue-300 text-blue-700' : 'bg-white border-gray-300'}`}
+                      onClick={() => setShortlistFilter(prev => prev === true ? null : true)}
+                    >
+                      Yes
+                    </button>
+                    <button
+                      className={`px-3 py-1 text-xs rounded border ${shortlistFilter === false ? 'bg-blue-100 border-blue-300 text-blue-700' : 'bg-white border-gray-300'}`}
+                      onClick={() => setShortlistFilter(prev => prev === false ? null : false)}
+                    >
+                      No
+                    </button>
+                    {shortlistFilter !== null && (
+                      <button
+                        className="text-xs text-gray-500 hover:text-gray-700"
+                        onClick={() => setShortlistFilter(null)}
+                      >
+                        ×
+                      </button>
+                    )}
+                  </div>
+                </div>
+
                 {/* Subsector Multi-select */}
                 <div className="relative min-w-[150px]" ref={subIndustryDropdownRef}>
                   <label className="block font-sans text-xs text-gray-500 mb-1">Sub-industry</label>
@@ -658,7 +686,18 @@ export default function Home() {
                   const paginatedCompanies = filteredCompanies.slice(startIdx, endIdx);
                   return paginatedCompanies.map((company, index) => (
                     <tr key={company.id} className="hover:bg-gray-50">
-                      <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900 text-center">{startIdx + index + 1}</td>
+                      <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900 text-center">
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleShortlist(company.id);
+                          }}
+                          className="text-yellow-400 hover:text-yellow-500 focus:outline-none"
+                          title={shortlisted.includes(company.id) ? 'Remove from shortlist' : 'Add to shortlist'}
+                        >
+                          {shortlisted.includes(company.id) ? '★' : '☆'}
+                        </button>
+                      </td>
                       <td className="px-4 py-2 whitespace-nowrap text-center sticky left-0 bg-white z-10">
                         <img
                           className="h-10 w-10 rounded-full mx-auto object-contain bg-white"
