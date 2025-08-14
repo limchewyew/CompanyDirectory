@@ -166,6 +166,18 @@ export default function Analytics() {
     setSelectedIndustry(selectedIndustry === industry ? null : industry)
     setSelectedCountry(null)
     setSelectedScoreRange(null)
+    setSubIndustryFilter([])
+  }
+
+  const handleSubIndustryClick = (subIndustry: string) => {
+    setSubIndustryFilter(
+      subIndustryFilter.includes(subIndustry) 
+        ? subIndustryFilter.filter(s => s !== subIndustry)
+        : [...subIndustryFilter, subIndustry]
+    )
+    setSelectedIndustry(null)
+    setSelectedCountry(null)
+    setSelectedScoreRange(null)
   }
 
   const handleCountryClick = (country: string) => {
@@ -194,7 +206,7 @@ export default function Analytics() {
   const allIndustries = Object.entries(industryCounts)
     .sort(([,a], [,b]) => b - a)
 
-  // Top sub-industries by company count
+  // All sub-industries by company count
   const subIndustryCounts = filteredCompanies.reduce((acc, company) => {
     if (company.subIndustry) {
       acc[company.subIndustry] = (acc[company.subIndustry] || 0) + 1
@@ -204,7 +216,6 @@ export default function Analytics() {
   
   const allSubIndustries = Object.entries(subIndustryCounts)
     .sort(([,a], [,b]) => b - a)
-    .slice(0, 20) // Limit to top 20 sub-industries to prevent overcrowding
 
   // Top countries by company count
   const countryCounts = filteredCompanies.reduce((acc, company) => {
@@ -727,33 +738,45 @@ export default function Analytics() {
             <div className="bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
               <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
                 <Building2 className="h-5 w-5 mr-2 text-blue-600" />
-                Top Sub-Industries ({allSubIndustries.length})
+                All Sub-Industries ({allSubIndustries.length})
               </h3>
               <div className="max-h-96 overflow-y-auto space-y-3 pr-2">
                 {allSubIndustries.map(([subIndustry, count], index) => {
                   // Calculate bar width based on the highest count for better visibility
                   const maxCount = Math.max(...allSubIndustries.map(([, c]) => c))
                   const barWidth = maxCount > 0 ? (count / maxCount) * 100 : 0
+                  const isSelected = subIndustryFilter.includes(subIndustry)
                   
                   return (
                     <div 
                       key={subIndustry} 
-                      className="flex items-center justify-between py-1 px-2 rounded-lg hover:bg-gray-50 transition-all duration-200"
+                      className={`flex items-center justify-between py-1 px-2 rounded-lg cursor-pointer transition-all duration-200 ${
+                        isSelected ? 'bg-blue-50 border border-blue-200' : 'hover:bg-gray-50'
+                      }`}
+                      onClick={() => handleSubIndustryClick(subIndustry)}
                     >
                       <div className="flex items-center space-x-3 min-w-0 flex-1">
-                        <span className="text-sm font-medium w-8 flex-shrink-0 text-gray-400">#{index + 1}</span>
-                        <span className="text-sm font-medium text-gray-700 break-words" title={subIndustry}>
+                        <span className={`text-sm font-medium w-8 flex-shrink-0 ${
+                          isSelected ? 'text-blue-600' : 'text-gray-400'
+                        }`}>#{index + 1}</span>
+                        <span className={`text-sm font-medium break-words ${
+                          isSelected ? 'text-blue-700' : 'text-gray-700'
+                        }`} title={subIndustry}>
                           {subIndustry}
                         </span>
                       </div>
                       <div className="flex items-center space-x-3 ml-4 flex-shrink-0">
                         <div className="w-32 bg-gray-200 rounded-full h-3">
                           <div 
-                            className="h-3 rounded-full transition-all duration-300 bg-blue-600"
+                            className={`h-3 rounded-full transition-all duration-300 ${
+                              isSelected ? 'bg-blue-700' : 'bg-blue-600'
+                            }`}
                             style={{ width: `${barWidth}%` }}
                           ></div>
                         </div>
-                        <span className="text-sm font-medium text-gray-700 w-16 text-right">{count}</span>
+                        <span className={`text-sm font-medium w-16 text-right ${
+                          isSelected ? 'text-blue-700' : 'text-gray-700'
+                        }`}>{count}</span>
                       </div>
                     </div>
                   )
