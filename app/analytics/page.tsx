@@ -551,14 +551,14 @@ export default function Analytics() {
             </div>
           </div>
 
-          {/* Avg Total Score */}
+          {/* Average Total Score */}
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
             <div className="flex items-center">
               <div className="h-12 w-12 flex items-center justify-center rounded-lg bg-yellow-50 border border-yellow-200">
                 <TrendingUp className="h-6 w-6 text-yellow-700" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-slate-600">Avg Total Score</p>
+                <p className="text-sm font-medium text-slate-600">Average Total Score</p>
                 <p className="text-2xl font-bold text-slate-900">{avgTotal.toFixed(1)}</p>
               </div>
             </div>

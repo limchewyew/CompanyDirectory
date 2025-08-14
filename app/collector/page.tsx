@@ -81,7 +81,7 @@ export default function Collector() {
       <div className="bg-white shadow-sm border-b">
         <div className="w-11/12 mx-auto px-6 py-2">
           <div className="flex items-center justify-between">
-            <p className="text-3xl text-gray-700 font-montserrat font-semibold">Collector</p>
+            <p className="text-3xl text-gray-700 font-montserrat font-semibold">Collector's Scrapbook</p>
             <div />
           </div>
         </div>

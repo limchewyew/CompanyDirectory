@@ -524,8 +524,8 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
             <div className="flex items-center">
-              <div className="h-12 w-12 flex items-center justify-center rounded-lg bg-slate-100 border border-slate-200">
-                <Star className="h-6 w-6 text-slate-600" />
+              <div className="h-12 w-12 flex items-center justify-center rounded-lg bg-yellow-50 border border-yellow-200">
+                <TrendingUp className="h-6 w-6 text-yellow-700" />
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-slate-600">Average Total Score</p>
