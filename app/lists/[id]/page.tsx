@@ -1,6 +1,8 @@
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import AddToListForm from '@/components/AddToListForm';
+import DeleteListButton from '@/components/DeleteListButton';
+import RemoveItemButton from '@/components/RemoveItemButton';
 
 export const dynamic = 'force-dynamic';
 
@@ -42,21 +44,7 @@ export default async function ListDetailPage({ params }: { params: { id: string 
         <div className="bg-white border rounded p-4 space-y-3">
           <div className="flex items-center justify-between">
             <div className="font-semibold text-gray-800">Add a company to this list</div>
-            <form
-              onSubmit={async (e) => {
-                e.preventDefault();
-                if (!confirm('Delete this list? This cannot be undone.')) return;
-                const res = await fetch(`/api/lists/${params.id}`, { method: 'DELETE' });
-                if (res.ok) {
-                  if (typeof window !== 'undefined') window.location.href = '/lists';
-                } else {
-                  const err = await res.json().catch(() => ({}));
-                  alert(err.error || 'Failed to delete list');
-                }
-              }}
-            >
-              <button type="submit" className="text-sm px-3 py-1.5 rounded bg-red-600 hover:bg-red-700 text-white">Delete list</button>
-            </form>
+            <DeleteListButton listId={params.id} />
           </div>
           <AddToListForm listId={params.id} />
         </div>
@@ -77,14 +65,7 @@ export default async function ListDetailPage({ params }: { params: { id: string 
                     {c?.industry && <div className="text-xs text-gray-500">{c.industry}</div>}
                   </div>
                   {isOwner && (
-                    <form action={`/api/lists/${params.id}/items/${it.companyId}`} method="post" onSubmit={async (e) => {
-                      e.preventDefault();
-                      await fetch(`/api/lists/${params.id}/items/${it.companyId}`, { method: 'DELETE' });
-                      // simple refresh
-                      if (typeof window !== 'undefined') window.location.reload();
-                    }}>
-                      <button className="text-sm px-3 py-1.5 rounded bg-red-600 hover:bg-red-700 text-white">Remove</button>
-                    </form>
+                    <RemoveItemButton listId={params.id} companyId={it.companyId} />
                   )}
                 </li>
               );
