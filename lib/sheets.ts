@@ -118,6 +118,7 @@ export async function deleteList(id: string, ownerEmail: string) {
 
 // LIST ITEMS
 export async function getItemsForList(listId: string) {
+  await ensureHeader('ListItems', ['id', 'listId', 'companyId', 'createdAt']);
   const sheets = await getSheets();
   const res = await sheets.spreadsheets.values.get({ spreadsheetId: SPREADSHEET_ID, range: `ListItems!A2:D` });
   const rows: string[][] = res.data.values || [];
@@ -128,6 +129,8 @@ export async function addItemToList(listId: string, companyId: string, ownerEmai
   const list = await getListById(listId);
   if (!list) throw new Error('List not found');
   if (list.ownerEmail.toLowerCase() !== ownerEmail.toLowerCase()) throw new Error('Forbidden');
+  // Ensure header exists before any reads/writes
+  await ensureHeader('ListItems', ['id', 'listId', 'companyId', 'createdAt']);
   const existing = await getItemsForList(listId);
   if (existing.some(e => e.companyId === companyId)) return; // no duplicate
   const sheets = await getSheets();
@@ -144,6 +147,7 @@ export async function removeItemFromList(listId: string, companyId: string, owne
   if (!list) throw new Error('List not found');
   if (list.ownerEmail.toLowerCase() !== ownerEmail.toLowerCase()) throw new Error('Forbidden');
   const sheets = await getSheets();
+  await ensureHeader('ListItems', ['id', 'listId', 'companyId', 'createdAt']);
   const res = await sheets.spreadsheets.values.get({ spreadsheetId: SPREADSHEET_ID, range: `ListItems!A2:D` });
   const rows: string[][] = res.data.values || [];
   const idx = rows.findIndex(r => r[1] === listId && r[2] === companyId);

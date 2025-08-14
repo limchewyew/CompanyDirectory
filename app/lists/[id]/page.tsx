@@ -1,5 +1,6 @@
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import AddToListForm from '@/components/AddToListForm';
 
 export const dynamic = 'force-dynamic';
 
@@ -36,6 +37,13 @@ export default async function ListDetailPage({ params }: { params: { id: string 
         </div>
         <a href="/lists" className="text-sm text-blue-600 hover:underline">Back to lists</a>
       </div>
+
+      {isOwner && (
+        <div className="bg-white border rounded p-4">
+          <div className="mb-3 font-semibold text-gray-800">Add a company to this list</div>
+          <AddToListForm listId={params.id} companies={companies} />
+        </div>
+      )}
 
       <div className="bg-white border rounded">
         <div className="border-b px-4 py-2 font-semibold">Companies</div>
