@@ -35,6 +35,7 @@ interface Company {
   total: number
   website: string
   logo: string
+  companyType: string
 }
 
 // No mockCompanies, live data will be fetched from API
@@ -69,6 +70,7 @@ export default function Home() {
   const [countryFilter, setCountryFilter] = useState<string[]>([]);
   const [industryFilter, setIndustryFilter] = useState<string[]>([]);
   const [subIndustryFilter, setSubIndustryFilter] = useState<string[]>([]);
+  const [companyTypeFilter, setCompanyTypeFilter] = useState<string[]>([]);
 
   // Total min/max filter
   const [totalMin, setTotalMin] = useState<string>('');
@@ -78,11 +80,13 @@ export default function Home() {
   const [openCountry, setOpenCountry] = useState(false);
   const [openIndustry, setOpenIndustry] = useState(false);
   const [openSubIndustry, setOpenSubIndustry] = useState(false);
+  const [openCompanyType, setOpenCompanyType] = useState(false);
 
   // Filter search states
   const [countrySearch, setCountrySearch] = useState('');
   const [industrySearch, setIndustrySearch] = useState('');
   const [subIndustrySearch, setSubIndustrySearch] = useState('');
+  const [companyTypeSearch, setCompanyTypeSearch] = useState('');
 
   // Filter bar visibility
   const [showFilterBar, setShowFilterBar] = useState(false);
@@ -93,11 +97,13 @@ export default function Home() {
   const countryDropdownRef = useRef<HTMLDivElement>(null);
   const industryDropdownRef = useRef<HTMLDivElement>(null);
   const subIndustryDropdownRef = useRef<HTMLDivElement>(null);
+  const companyTypeDropdownRef = useRef<HTMLDivElement>(null);
 
   // Add click-outside handlers
   useClickOutside(countryDropdownRef, () => setOpenCountry(false));
   useClickOutside(industryDropdownRef, () => setOpenIndustry(false));
   useClickOutside(subIndustryDropdownRef, () => setOpenSubIndustry(false));
+  useClickOutside(companyTypeDropdownRef, () => setOpenCompanyType(false));
 
   // Fetch companies from API on mount
   useEffect(() => {
@@ -119,11 +125,13 @@ export default function Home() {
   const countryOptions = Array.from(new Set((companies ?? []).map(c => c.country).filter(Boolean)));
   const industryOptions = Array.from(new Set((companies ?? []).map(c => c.industry).filter(Boolean)));
   const subIndustryOptions = Array.from(new Set((companies ?? []).map(c => c.subIndustry).filter(Boolean)));
+  const companyTypeOptions = Array.from(new Set((companies ?? []).map(c => c.companyType).filter(Boolean)));
 
   // Filtered options for dropdowns
   const filteredCountryOptions = countryOptions.filter(option => option.toLowerCase().includes(countrySearch.toLowerCase())).sort((a, b) => a.localeCompare(b));
   const filteredIndustryOptions = industryOptions.filter(option => option.toLowerCase().includes(industrySearch.toLowerCase())).sort((a, b) => a.localeCompare(b));
   const filteredSubIndustryOptions = subIndustryOptions.filter(option => option.toLowerCase().includes(subIndustrySearch.toLowerCase())).sort((a, b) => a.localeCompare(b));
+  const filteredCompanyTypeOptions = companyTypeOptions.filter(option => option.toLowerCase().includes(companyTypeSearch.toLowerCase())).sort((a, b) => a.localeCompare(b));
 
   useEffect(() => {
     // First apply all filters
@@ -140,10 +148,11 @@ export default function Home() {
       const matchesCountry = countryFilter.length > 0 ? countryFilter.includes(company.country) : true;
       const matchesIndustry = industryFilter.length > 0 ? industryFilter.includes(company.industry) : true;
       const matchesSubIndustry = subIndustryFilter.length > 0 ? subIndustryFilter.includes(company.subIndustry) : true;
+      const matchesCompanyType = companyTypeFilter.length > 0 ? companyTypeFilter.includes(company.companyType) : true;
       const matchesTotalMin = totalMin !== '' ? company.total >= Number(totalMin) : true;
       const matchesTotalMax = totalMax !== '' ? company.total <= Number(totalMax) : true;
       
-      return matchesSearch && matchesCountry && matchesIndustry && matchesSubIndustry && matchesTotalMin && matchesTotalMax;
+      return matchesSearch && matchesCountry && matchesIndustry && matchesSubIndustry && matchesCompanyType && matchesTotalMin && matchesTotalMax;
     });
 
     // Apply random company selection if randomCount is set
@@ -194,7 +203,7 @@ export default function Home() {
 
     setFilteredCompanies(filtered);
 
-  }, [searchTerm, sortBy, sortOrder, companies, countryFilter, industryFilter, subIndustryFilter, totalMin, totalMax, randomCount]);
+  }, [searchTerm, sortBy, sortOrder, companies, countryFilter, industryFilter, subIndustryFilter, companyTypeFilter, totalMin, totalMax, randomCount]);
 
   useEffect(() => {
     // First apply all filters
@@ -208,12 +217,13 @@ export default function Home() {
       const matchesCountry = countryFilter.length === 0 || countryFilter.includes(company.country);
       const matchesIndustry = industryFilter.length === 0 || industryFilter.includes(company.industry);
       const matchesSubIndustry = subIndustryFilter.length === 0 || subIndustryFilter.includes(company.subIndustry);
+      const matchesCompanyType = companyTypeFilter.length === 0 || companyTypeFilter.includes(company.companyType);
       
       const matchesTotal = 
         (totalMin === '' || company.total >= parseFloat(totalMin)) &&
         (totalMax === '' || company.total <= parseFloat(totalMax));
       
-      return matchesSearch && matchesCountry && matchesIndustry && matchesSubIndustry && matchesTotal;
+      return matchesSearch && matchesCountry && matchesIndustry && matchesSubIndustry && matchesCompanyType && matchesTotal;
     });
     
     // Then sort
@@ -240,16 +250,18 @@ export default function Home() {
     
     setFilteredCompanies(filtered);
     setCurrentPage(1); // Reset to first page whenever filters change
-  }, [companies, searchTerm, countryFilter, industryFilter, subIndustryFilter, totalMin, totalMax, sortBy, sortOrder]);
+  }, [companies, searchTerm, countryFilter, industryFilter, subIndustryFilter, companyTypeFilter, totalMin, totalMax, sortBy, sortOrder]);
 
   // Clear all filters handler
   const handleClearAllFilters = () => {
     setCountryFilter([]);
     setIndustryFilter([]);
     setSubIndustryFilter([]);
+    setCompanyTypeFilter([]);
     setCountrySearch('');
     setIndustrySearch('');
     setSubIndustrySearch('');
+    setCompanyTypeSearch('');
     setTotalMin('');
     setTotalMax('');
   };
@@ -345,7 +357,7 @@ export default function Home() {
                   <label className="block font-sans text-xs text-gray-500 mb-1">Country</label>
                   <div
                     className="border border-gray-300 rounded px-2 py-1 text-sm bg-white cursor-pointer flex flex-wrap gap-1 min-h-[36px] items-center"
-                    onClick={() => { setOpenCountry(v => !v); setOpenIndustry(false); setOpenSubIndustry(false); }}
+                    onClick={() => { setOpenCountry(v => !v); setOpenIndustry(false); setOpenSubIndustry(false); setOpenCompanyType(false); }}
                   >
                     {countryFilter.length === 0 && <span className="text-gray-400">All</span>}
                     {countryFilter.map(opt => (
@@ -399,7 +411,7 @@ export default function Home() {
                   <label className="block font-sans text-xs text-gray-500 mb-1">Industry</label>
                   <div
                     className="border border-gray-300 rounded px-2 py-1 text-sm bg-white cursor-pointer flex flex-wrap gap-1 min-h-[36px] items-center"
-                    onClick={() => { setOpenIndustry(v => !v); setOpenCountry(false); setOpenSubIndustry(false); }}
+                    onClick={() => { setOpenIndustry(v => !v); setOpenCountry(false); setOpenSubIndustry(false); setOpenCompanyType(false); }}
                   >
                     {industryFilter.length === 0 && <span className="text-gray-400">All</span>}
                     {industryFilter.map(opt => (
@@ -453,7 +465,7 @@ export default function Home() {
                   <label className="block font-sans text-xs text-gray-500 mb-1">Sub-industry</label>
                   <div
                     className="border border-gray-300 rounded px-2 py-1 text-sm bg-white cursor-pointer flex flex-wrap gap-1 min-h-[36px] items-center"
-                    onClick={() => { setOpenSubIndustry(v => !v); setOpenCountry(false); setOpenIndustry(false); }}
+                    onClick={() => { setOpenSubIndustry(v => !v); setOpenCountry(false); setOpenIndustry(false); setOpenCompanyType(false); }}
                   >
                     {subIndustryFilter.length === 0 && <span className="text-gray-400">All</span>}
                     {subIndustryFilter.map(opt => (
@@ -493,6 +505,60 @@ export default function Home() {
                                 subIndustryFilter.includes(option)
                                   ? subIndustryFilter.filter(f => f !== option)
                                   : [...subIndustryFilter, option]
+                              );
+                            }}
+                          />
+                          {option}
+                        </label>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                {/* Company Type Multi-select */}
+                <div className="relative min-w-[150px]" ref={companyTypeDropdownRef}>
+                  <label className="block font-sans text-xs text-gray-500 mb-1">Company Type</label>
+                  <div
+                    className="border border-gray-300 rounded px-2 py-1 text-sm bg-white cursor-pointer flex flex-wrap gap-1 min-h-[36px] items-center"
+                    onClick={() => { setOpenCompanyType(v => !v); setOpenCountry(false); setOpenIndustry(false); setOpenSubIndustry(false); }}
+                  >
+                    {companyTypeFilter.length === 0 && <span className="text-gray-400">All</span>}
+                    {companyTypeFilter.map(opt => (
+                      <span
+                        key={opt}
+                        className="bg-blue-500 text-white rounded px-2 py-0.5 font-sans text-xs mr-1 mb-1 flex items-center"
+                        onClick={e => {
+                          e.stopPropagation();
+                          setCompanyTypeFilter(companyTypeFilter.filter(c => c !== opt));
+                        }}
+                      >{opt} <span className="ml-1 cursor-pointer">×</span></span>
+                    ))}
+                    <span className="ml-auto text-xs text-gray-400">▼</span>
+                  </div>
+                  {openCompanyType && (
+                    <div className="absolute z-50 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg max-h-64 overflow-y-auto">
+                      <div className="px-3 py-2">
+                        <input
+                          type="text"
+                          className="w-full px-2 py-1 border border-slate-300 rounded focus:outline-none focus:border-slate-500 text-sm transition-colors"
+                          placeholder="Search company type..."
+                          value={companyTypeSearch}
+                          onChange={e => setCompanyTypeSearch(e.target.value)}
+                        />
+                      </div>
+                      {filteredCompanyTypeOptions.length === 0 && (
+                        <div className="px-3 py-2 text-gray-400 text-sm">No results</div>
+                      )}
+                      {filteredCompanyTypeOptions.map(option => (
+                        <label key={option} className="flex items-center px-3 py-2 cursor-pointer hover:bg-gray-100">
+                          <input
+                            type="checkbox"
+                            className="form-checkbox mr-2"
+                            checked={companyTypeFilter.includes(option)}
+                            onChange={() => {
+                              setCompanyTypeFilter(
+                                companyTypeFilter.includes(option)
+                                  ? companyTypeFilter.filter(f => f !== option)
+                                  : [...companyTypeFilter, option]
                               );
                             }}
                           />

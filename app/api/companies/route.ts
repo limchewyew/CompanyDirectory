@@ -25,7 +25,7 @@ export async function GET() {
 
     const sheets = google.sheets({ version: 'v4', auth });
     const spreadsheetId = '1Be3uWps2Y3DUaIIldVVvhHlThzt__dgw7pdaMb68AxU';
-    const range = 'Database!A:O';
+    const range = 'Database!A:P';
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId,
       range,
@@ -51,7 +51,8 @@ export async function GET() {
       innovation: Number(row[11]) || 0,
       total: Number(row[12]) || 0,
       website: row[13] || '',
-      logo: row[14] || ''
+      logo: row[14] || '',
+      companyType: row[15] || ''
     }));
     return NextResponse.json(companies);
   } catch (error: any) {
