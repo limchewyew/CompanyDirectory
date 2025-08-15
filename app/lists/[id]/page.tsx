@@ -60,11 +60,19 @@ export default async function ListDetailPage({ params }: { params: { id: string 
               const c = companyMap[String(it.companyId)];
               return (
                 <li key={it.id} className="px-4 py-3 flex items-center justify-between">
-                  <div>
-                    <a href={`/companies/${it.companyId}`} className="font-medium text-blue-700 hover:underline">
-                      {c?.name || `Company`}
-                    </a>
-                    {c?.industry && <div className="text-xs text-gray-500">{c.industry}</div>}
+                  <div className="flex items-center gap-3">
+                    {c?.logo ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={c.logo} alt={c?.name || 'logo'} className="w-10 h-10 object-contain bg-white border border-gray-200 rounded-md" />
+                    ) : (
+                      <div className="w-10 h-10 rounded-md bg-gray-100 border border-gray-200" />
+                    )}
+                    <div>
+                      <a href={`/companies/${it.companyId}`} className="font-medium text-blue-700 hover:underline">
+                        {c?.name || `Company`}
+                      </a>
+                      {c?.industry && <div className="text-xs text-gray-500">{c.industry}</div>}
+                    </div>
                   </div>
                   <div className="flex items-center gap-3">
                     <a href={`/companies/${it.companyId}`} className="text-sm text-blue-600 hover:underline">View</a>

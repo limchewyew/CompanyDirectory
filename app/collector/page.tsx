@@ -172,9 +172,9 @@ function CompanyCard({ company }: { company: Company }) {
             {/* Logo */}
             {company.logo ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={company.logo} alt="logo" className="w-14 h-14 rounded-xl object-cover border border-gray-200" />
+              <img src={company.logo} alt="logo" className="w-10 h-10 object-contain bg-white border border-gray-200 rounded-md" />
             ) : (
-              <div className="w-14 h-14 rounded-xl bg-gray-100 border border-gray-200" />
+              <div className="w-10 h-10 rounded-md bg-gray-100 border border-gray-200" />
             )}
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between">
