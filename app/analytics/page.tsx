@@ -233,11 +233,9 @@ export default function Analytics() {
   }
 
   filteredCompanies.forEach(company => {
-    if (company.total >= 10 && company.total <= 45) {
-      // Group scores into 5-point intervals
-      const interval = Math.floor((company.total - 10) / 5) * 5 + 10
-      scoreRanges[interval]++
-    }
+    // Group all scores into 5-point intervals
+    const interval = Math.floor(company.total / 5) * 5
+    scoreRanges[interval] = (scoreRanges[interval] || 0) + 1
   })
 
   // Average scores by category

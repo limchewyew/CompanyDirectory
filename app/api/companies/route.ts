@@ -44,11 +44,13 @@ export async function GET() {
       subIndustry: row[4] || '',
       yearFounded: row[5] || '',
       employees: row[6] || '',
-      history: Number(row[7]) || 0,
-      brandAwareness: Number(row[8]) || 0,
-      moat: Number(row[9]) || 0,
-      size: Number(row[10]) || 0,
-      innovation: Number(row[11]) || 0,
+      // Individual score components (columns H-L)
+      history: Number(row[7]) || 0,          // Column H
+      brandAwareness: Number(row[8]) || 0,   // Column I
+      moat: Number(row[9]) || 0,             // Column J
+      size: Number(row[10]) || 0,            // Column K
+      innovation: Number(row[11]) || 0,       // Column L
+      // Total score from column M (no range restrictions)
       total: Number(row[12]) || 0,
       website: row[13] || '',
       logo: row[14] || '',
