@@ -590,7 +590,9 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           {/* Average Score */}
           <div className="bg-white p-4 rounded border border-gray-200 shadow-xs hover:shadow-sm transition-shadow">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <div className="h-9 w-9 flex items-center justify-center rounded-md bg-blue-50">
+                <TrendingUp className="h-4 w-4 text-blue-600" />
               </div>
               <div className="ml-3">
                 <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Average Score</p>
@@ -598,6 +600,7 @@ export default function Home() {
                   {filteredCompanies.length > 0 ? (filteredCompanies.reduce((sum, company) => sum + Number(company.total ?? 0), 0) / filteredCompanies.length).toFixed(1) : '0.0'}
                 </p>
               </div>
+            </div>
             </div>
           </div>
 
