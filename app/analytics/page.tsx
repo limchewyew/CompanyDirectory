@@ -226,9 +226,9 @@ export default function Analytics() {
   const allCountries = Object.entries(countryCounts)
     .sort(([,a], [,b]) => b - a)
 
-  // Score distributions from 10 to 45 - using 5 as interval
+  // Score distributions from 20 to 100 - using 5 as interval
   const scoreRanges: { [key: number]: number } = {}
-  for (let i = 10; i <= 45; i += 5) {
+  for (let i = 20; i <= 100; i += 5) {
     scoreRanges[i] = 0
   }
 
@@ -643,7 +643,7 @@ export default function Analytics() {
                       },
                       beginAtZero: true,
                       ticks: {
-                        stepSize: 1
+                        stepSize: 500
                       }
                     }
                   }
