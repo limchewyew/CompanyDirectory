@@ -567,11 +567,13 @@ export default function Analytics() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
           {/* Score Distribution */}
           <div className="bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-              <BarChart3 className="h-5 w-5 mr-2 text-blue-600" />
-              Score Distribution
-            </h3>
-            <div className="h-80">
+            <div className="flex justify-between items-center mb-3">
+              <h3 className="text-base font-semibold text-gray-700 flex items-center">
+                <BarChart3 className="h-4 w-4 mr-2 text-blue-600" />
+                SCORE DISTRIBUTION
+              </h3>
+            </div>
+            <div className="h-48">
               <Bar
                 data={{
                   labels: Object.keys(scoreRanges).map(score => score),

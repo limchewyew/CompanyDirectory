@@ -585,43 +585,59 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="w-11/12 mx-auto px-6 py-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-            <div className="flex items-center">
-              <div className="h-12 w-12 flex items-center justify-center rounded-lg bg-yellow-50 border border-yellow-200">
-                <TrendingUp className="h-6 w-6 text-yellow-700" />
+      {/* Stats - Compact Header */}
+      <div className="w-11/12 mx-auto px-6 py-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          {/* Average Score */}
+          <div className="bg-white p-4 rounded border border-gray-200 shadow-xs hover:shadow-sm transition-shadow">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <div className="h-9 w-9 flex items-center justify-center rounded-md bg-blue-50">
+                  <TrendingUp className="h-4 w-4 text-blue-600" />
+                </div>
+                <div className="ml-3">
+                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Avg. Score</p>
+                  <p className="text-xl font-semibold text-gray-800">
+                    {filteredCompanies.length > 0 ? (filteredCompanies.reduce((sum, company) => sum + Number(company.total ?? 0), 0) / filteredCompanies.length).toFixed(1) : '0.0'}
+                  </p>
+                </div>
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-slate-600">Average Total Score</p>
-                <p className="text-2xl font-bold text-slate-900">
-                  {filteredCompanies.length > 0 ? (filteredCompanies.reduce((sum, company) => sum + Number(company.total ?? 0), 0) / filteredCompanies.length).toFixed(2) : '0.00'}
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-            <div className="flex items-center">
-              <div className="h-12 w-12 flex items-center justify-center rounded-lg bg-blue-50 border border-blue-200">
-                <Building2 className="h-6 w-6 text-blue-700" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-slate-600">Total Companies</p>
-                <p className="text-2xl font-bold text-slate-900">{filteredCompanies.length.toLocaleString()}</p>
+              <div className="text-right">
+                <p className="text-xs text-gray-500">/ 100</p>
               </div>
             </div>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+
+          {/* Total Companies */}
+          <div className="bg-white p-4 rounded border border-gray-200 shadow-xs hover:shadow-sm transition-shadow">
             <div className="flex items-center">
-              <div className="h-12 w-12 flex items-center justify-center rounded-lg bg-emerald-50 border border-emerald-200">
-                <Globe className="h-6 w-6 text-emerald-700" />
+              <div className="h-9 w-9 flex items-center justify-center rounded-md bg-green-50">
+                <Building2 className="h-4 w-4 text-green-600" />
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-slate-600">Countries</p>
-                <p className="text-2xl font-bold text-slate-900">
-                  {new Set(filteredCompanies.map(c => c.country)).size}
-                </p>
+              <div className="ml-3">
+                <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Companies</p>
+                <div className="flex items-baseline">
+                  <p className="text-xl font-semibold text-gray-800">{filteredCompanies.length.toLocaleString()}</p>
+                  <span className="ml-1 text-xs text-gray-500">filtered</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Countries */}
+          <div className="bg-white p-4 rounded border border-gray-200 shadow-xs hover:shadow-sm transition-shadow">
+            <div className="flex items-center">
+              <div className="h-9 w-9 flex items-center justify-center rounded-md bg-purple-50">
+                <Globe className="h-4 w-4 text-purple-600" />
+              </div>
+              <div className="ml-3">
+                <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Countries</p>
+                <div className="flex items-baseline">
+                  <p className="text-xl font-semibold text-gray-800">
+                    {new Set(filteredCompanies.map(c => c.country)).size}
+                  </p>
+                  <span className="ml-1 text-xs text-gray-500">/ {new Set(companies.map(c => c.country)).size} total</span>
+                </div>
               </div>
             </div>
           </div>
