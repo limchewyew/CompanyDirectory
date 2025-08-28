@@ -90,7 +90,6 @@ export default function Home() {
 
   // Filter bar visibility
   const [showFilterBar, setShowFilterBar] = useState(false);
-  const [showInfoPopup, setShowInfoPopup] = useState(false);
   const [randomCount, setRandomCount] = useState(0);
   const randomIndexRef = useRef<number | null>(null);
 
@@ -283,30 +282,28 @@ export default function Home() {
             <p className="text-3xl text-gray-700 font-montserrat font-semibold">Company Directory</p>
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2">
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    className="p-2 bg-slate-100 rounded-lg hover:bg-slate-200 border border-slate-200 transition-colors self-stretch flex items-center"
-                    aria-label="Show information"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setShowInfoPopup(true);
-                    }}
-                  >
-                    <Info className="h-5 w-5 text-slate-500 hover:text-slate-700" />
-                  </button>
-                  <button
-                    type="button"
-                    className="p-2 bg-slate-100 rounded-lg hover:bg-slate-200 border border-slate-200 transition-colors self-stretch flex items-center"
-                    aria-label="Show filters"
-                    onClick={() => {
-                      setShowFilterBar(v => !v);
-                      setRandomCount(0); // Reset random count when opening filters
-                    }}
-                  >
-                    <FilterIcon className={`h-5 w-5 ${showFilterBar ? 'text-slate-700' : 'text-slate-500'}`} />
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  className="p-2 bg-slate-100 rounded-lg hover:bg-slate-200 border border-slate-200 transition-colors self-stretch flex items-center"
+                  aria-label="Information"
+                  onClick={() => {
+                    // Add your information dialog/modal logic here
+                    alert('Company Directory Information: This is a directory of companies with various filters and sorting options.');
+                  }}
+                >
+                  <Info className="h-5 w-5 text-slate-500 hover:text-slate-700" />
+                </button>
+                <button
+                  type="button"
+                  className="p-2 bg-slate-100 rounded-lg hover:bg-slate-200 border border-slate-200 transition-colors self-stretch flex items-center"
+                  aria-label="Show filters"
+                  onClick={() => {
+                    setShowFilterBar(v => !v);
+                    setRandomCount(0); // Reset random count when opening filters
+                  }}
+                >
+                  <FilterIcon className={`h-5 w-5 ${showFilterBar ? 'text-slate-700' : 'text-slate-500'}`} />
+                </button>
                 <button
                   type="button"
                   className="flex items-center justify-center w-36 h-10 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm font-medium transition-colors whitespace-nowrap border border-slate-200"
@@ -335,6 +332,15 @@ export default function Home() {
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
                 </div>
+              </div>
+            </div>
+          </div>
+          {/* Filter Bar - Only show if toggled */}
+          {showFilterBar && (
+            <div className="flex flex-wrap items-start gap-4 mt-4 z-10 p-4 bg-gray-50 border border-gray-200 rounded-lg animate-fade-in">
+              {/* Filter dropdowns */}
+              <div className="flex flex-wrap gap-4 flex-1">
+                {/* Total Min/Max Filter */}
                 <div className="flex flex-col justify-end min-w-[170px]">
                   <label className="block font-sans text-xs text-gray-500 mb-1">Total Range</label>
                   <div className="flex gap-2 items-center">
@@ -844,39 +850,6 @@ export default function Home() {
           <p>Company details & logos might not be fully up to date.</p>
         </footer>
       </div>
-
-      {/* Info Popup */}
-      {showInfoPopup && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={() => setShowInfoPopup(false)}>
-          <div className="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-            <div className="flex justify-between items-start mb-4">
-              <h3 className="text-xl font-semibold text-gray-800">Read Me</h3>
-              <button 
-                onClick={() => setShowInfoPopup(false)}
-                className="text-gray-500 hover:text-gray-700"
-                aria-label="Close"
-              >
-                ✕
-              </button>
-            </div>
-            <div className="prose max-w-none">
-              <p>This is a continuously expanding database of companies, designed with flexibility in mind—there are no strict criteria for company selection.</p>
-              
-              <p className="mt-4">The scoring framework evaluates companies across the following weighted components:</p>
-              
-              <ul className="list-disc pl-6 mt-2 space-y-1">
-                <li>History (5%)</li>
-                <li>Brand Awareness (22.5%)</li>
-                <li>Moat (22.5%)</li>
-                <li>Size (27.5%)</li>
-                <li>Innovation (22.5%)</li>
-              </ul>
-              
-              <p className="mt-4">The total score reflects the weighted sum of these factors, providing a balanced view of each company's overall standing.</p>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
