@@ -844,8 +844,6 @@ export default function Home() {
           <p>Company details & logos might not be fully up to date.</p>
         </footer>
       </div>
-    </div>
-      </div>
 
       {/* Info Popup */}
       {showInfoPopup && (
