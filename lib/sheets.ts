@@ -96,23 +96,38 @@ export async function getListById(id: string) {
 }
 
 export async function deleteList(id: string, ownerEmail: string) {
-  // Deleting arbitrary rows in Sheets requires batchUpdate. We'll mark as logically deleted by making it non-public and renaming.
   const list = await getListById(id);
   if (!list) return false;
   if (list.ownerEmail.toLowerCase() !== ownerEmail.toLowerCase()) return false;
   const sheets = await getSheets();
+  
   // Find row index
-  const res = await sheets.spreadsheets.values.get({ spreadsheetId: SPREADSHEET_ID, range: `Lists!A2:E` });
+  const res = await sheets.spreadsheets.values.get({ 
+    spreadsheetId: SPREADSHEET_ID, 
+    range: `Lists!A2:E` 
+  });
   const rows: string[][] = res.data.values || [];
   const idx = rows.findIndex(r => r[0] === id);
   if (idx < 0) return false;
-  const rowNumber = idx + 2; // because header is row 1
-  await sheets.spreadsheets.values.update({
+  
+  // Delete the row using batchUpdate
+  const rowNumber = idx + 2; // +2 because header is row 1 and we're starting from A2
+  await sheets.spreadsheets.batchUpdate({
     spreadsheetId: SPREADSHEET_ID,
-    range: `Lists!A${rowNumber}:E${rowNumber}`,
-    valueInputOption: 'RAW',
-    requestBody: { values: [[id, list.ownerEmail, `[DELETED] ${list.name}`, 'FALSE', list.createdAt]] },
+    requestBody: {
+      requests: [{
+        deleteDimension: {
+          range: {
+            sheetId: 0, // Assuming Lists is the first sheet
+            dimension: 'ROWS',
+            startIndex: rowNumber - 1, // 0-based index
+            endIndex: rowNumber // endIndex is exclusive
+          }
+        }
+      }]
+    }
   });
+  
   return true;
 }
 
