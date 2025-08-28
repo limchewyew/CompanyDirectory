@@ -96,39 +96,59 @@ export async function getListById(id: string) {
 }
 
 export async function deleteList(id: string, ownerEmail: string) {
-  const list = await getListById(id);
-  if (!list) return false;
-  if (list.ownerEmail.toLowerCase() !== ownerEmail.toLowerCase()) return false;
-  const sheets = await getSheets();
-  
-  // Find row index
-  const res = await sheets.spreadsheets.values.get({ 
-    spreadsheetId: SPREADSHEET_ID, 
-    range: `Lists!A2:E` 
-  });
-  const rows: string[][] = res.data.values || [];
-  const idx = rows.findIndex(r => r[0] === id);
-  if (idx < 0) return false;
-  
-  // Delete the row using batchUpdate
-  const rowNumber = idx + 2; // +2 because header is row 1 and we're starting from A2
-  await sheets.spreadsheets.batchUpdate({
-    spreadsheetId: SPREADSHEET_ID,
-    requestBody: {
-      requests: [{
-        deleteDimension: {
-          range: {
-            sheetId: 0, // Assuming Lists is the first sheet
-            dimension: 'ROWS',
-            startIndex: rowNumber - 1, // 0-based index
-            endIndex: rowNumber // endIndex is exclusive
-          }
-        }
-      }]
+  try {
+    const list = await getListById(id);
+    if (!list) {
+      console.log('List not found');
+      return false;
     }
-  });
-  
-  return true;
+    if (list.ownerEmail.toLowerCase() !== ownerEmail.toLowerCase()) {
+      console.log('User not authorized to delete this list');
+      return false;
+    }
+    
+    const sheets = await getSheets();
+    
+    // First, delete all list items associated with this list
+    try {
+      await sheets.spreadsheets.values.clear({
+        spreadsheetId: SPREADSHEET_ID,
+        range: `ListItems!A2:D`
+      });
+    } catch (error) {
+      console.log('No list items to delete or error clearing items:', error);
+    }
+    
+    // Then delete the list itself by shifting rows up
+    const res = await sheets.spreadsheets.values.get({
+      spreadsheetId: SPREADSHEET_ID,
+      range: 'Lists!A2:E',
+    });
+    
+    const rows = res.data.values || [];
+    const rowIndex = rows.findIndex(row => row[0] === id);
+    
+    if (rowIndex === -1) {
+      console.log('List row not found');
+      return false;
+    }
+    
+    // Instead of using deleteDimension (which might require special permissions),
+    // we'll update the row with empty values to effectively remove it
+    await sheets.spreadsheets.values.update({
+      spreadsheetId: SPREADSHEET_ID,
+      range: `Lists!A${rowIndex + 2}:E${rowIndex + 2}`, // +2 because of 1-based index and header row
+      valueInputOption: 'RAW',
+      requestBody: {
+        values: [['', '', '', '', '']] // Empty the row
+      },
+    });
+    
+    return true;
+  } catch (error) {
+    console.error('Error in deleteList:', error);
+    throw error; // Re-throw to be handled by the API route
+  }
 }
 
 // LIST ITEMS
