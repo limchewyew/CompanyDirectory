@@ -88,8 +88,9 @@ export default function Home() {
   const [subIndustrySearch, setSubIndustrySearch] = useState('');
   const [companyTypeSearch, setCompanyTypeSearch] = useState('');
 
-  // Filter bar visibility
+  // UI state
   const [showFilterBar, setShowFilterBar] = useState(false);
+  const [showInfoModal, setShowInfoModal] = useState(false);
   const [randomCount, setRandomCount] = useState(0);
   const randomIndexRef = useRef<number | null>(null);
 
@@ -287,8 +288,7 @@ export default function Home() {
                   className="p-2 bg-slate-100 rounded-lg hover:bg-slate-200 border border-slate-200 transition-colors self-stretch flex items-center"
                   aria-label="Information"
                   onClick={() => {
-                    // Add your information dialog/modal logic here
-                    alert('Company Directory Information: This is a directory of companies with various filters and sorting options.');
+                    setShowInfoModal(true);
                   }}
                 >
                   <Info className="h-5 w-5 text-slate-500 hover:text-slate-700" />
@@ -850,6 +850,50 @@ export default function Home() {
           <p>Company details & logos might not be fully up to date.</p>
         </footer>
       </div>
+
+      {/* Information Modal */}
+      {showInfoModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full p-6 max-h-[80vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold text-gray-800">About This Database</h2>
+              <button 
+                onClick={() => setShowInfoModal(false)}
+                className="text-gray-500 hover:text-gray-700"
+                aria-label="Close"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="space-y-4 text-gray-700">
+              <p>This is a continuously expanding database of companies, designed with flexibility in mind—there are no strict criteria for company selection.</p>
+              
+              <h3 className="font-medium text-gray-900 mt-6 mb-2">Scoring Framework</h3>
+              <p>The scoring framework evaluates companies across the following weighted components:</p>
+              
+              <ul className="list-disc pl-5 space-y-1">
+                <li><span className="font-medium">History (5%)</span> - Long-term performance and stability</li>
+                <li><span className="font-medium">Brand Awareness (22.5%)</span> - Market recognition and reputation</li>
+                <li><span className="font-medium">Moat (22.5%)</span> - Competitive advantages and barriers to entry</li>
+                <li><span className="font-medium">Size (27.5%)</span> - Market capitalization and revenue metrics</li>
+                <li><span className="font-medium">Innovation (22.5%)</span> - R&D investment and product development</li>
+              </ul>
+              
+              <p className="mt-4">The total score reflects the weighted sum of these factors, providing a balanced view of each company's overall standing.</p>
+            </div>
+            <div className="mt-6 flex justify-end">
+              <button
+                onClick={() => setShowInfoModal(false)}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
