@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { FaHome, FaQuestionCircle, FaChartBar, FaDatabase, FaList } from 'react-icons/fa';
+import { FaHome, FaQuestion, FaChartBar, FaDatabase, FaList, FaChartPie } from 'react-icons/fa';
 import './globals.css';
 
 export default function Sidebar() {
@@ -75,7 +75,7 @@ export default function Sidebar() {
           } as React.CSSProperties}
           title="Inquiry"
         >
-          <FaQuestionCircle size={24} />
+          <FaQuestion size={24} />
         </a>
       </Link>
       <Link href="/collector" legacyBehavior>
@@ -98,6 +98,17 @@ export default function Sidebar() {
           title="Lists"
         >
           <FaList size={24} />
+        </a>
+      </Link>
+      <Link href="/bubbles" legacyBehavior>
+        <a
+          style={{
+            ...iconStyle,
+            ...(pathname === '/bubbles' ? activeStyle : {}),
+          } as React.CSSProperties}
+          title="Bubble Chart"
+        >
+          <FaChartPie size={24} />
         </a>
       </Link>
     </aside>
