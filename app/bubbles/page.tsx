@@ -67,8 +67,8 @@ const BubbleChart = () => {
   useEffect(() => {
     if (data.length === 0 || !svgRef.current) return;
 
-    const width = 1000;
-    const height = 800;
+    const width = 1200;
+    const height = 1000;
     const padding = 20;
 
     // Clear previous SVG content
@@ -77,25 +77,23 @@ const BubbleChart = () => {
     // Create SVG
     const svg = d3.select(svgRef.current)
       .attr('width', '100%')
-      .attr('height', '100%')
+      .attr('height', '100vh') // Make the chart take full viewport height
       .attr('viewBox', `0 0 ${width} ${height}`)
-      .style('background', '#f8f9fa');
+      .style('background', '#ffffff');
 
-    // Create a color scale for sub-industries
-    const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
-
-    // Create a size scale based on total score
+    // Set bubble size scale
     const sizeScale = d3.scaleSqrt()
       .domain([0, d3.max(data, d => d.total) || 100])
-      .range([20, 100]); // Min and max bubble size (increased min for better visibility)
+      .range([15, 80]); // Adjusted size range for better visibility
 
     // Create force simulation
     const simulation = forceSimulation(data as any)
       .force('charge', d3.forceManyBody().strength(5))
       .force('center', d3.forceCenter(width / 2, height / 2))
       .force('collision', forceCollide<d3.SimulationNodeDatum & Company>()
-        .radius(d => sizeScale(d.total) + 1)
-        .strength(0.7)
+        .radius(d => sizeScale(d.total) + 2) // Add more padding between bubbles
+        .strength(0.9) // Increase strength to prevent overlap
+        .iterations(2) // Run collision detection multiple times per tick
       )
       .force('x', forceX<d3.SimulationNodeDatum & Company>(width / 2).strength(0.05))
       .force('y', forceY<d3.SimulationNodeDatum & Company>(height / 2).strength(0.05));
@@ -107,8 +105,10 @@ const BubbleChart = () => {
       .append('circle')
       .attr('class', 'bubble')
       .attr('r', d => sizeScale(d.total))
-      .attr('fill', d => colorScale(d.subIndustry))
-      .attr('opacity', 0.7)
+      .attr('fill', 'white')
+      .attr('stroke', '#ccc')
+      .attr('stroke-width', 1)
+      .attr('opacity', 0.9)
       .on('mouseover', (event, d) => {
         setTooltip({
           visible: true,
@@ -154,25 +154,6 @@ const BubbleChart = () => {
         .attr('y', d => Math.max(sizeScale(d.total), Math.min(height - sizeScale(d.total), (d as any).y)));
     });
 
-    // Add legend for sub-industries
-    const legend = svg.selectAll('.legend')
-      .data(Array.from(new Set(data.map(d => d.subIndustry))))
-      .enter()
-      .append('g')
-      .attr('class', 'legend')
-      .attr('transform', (d, i) => `translate(20, ${20 + i * 25})`);
-
-    legend.append('rect')
-      .attr('width', 15)
-      .attr('height', 15)
-      .attr('fill', d => colorScale(d));
-
-    legend.append('text')
-      .attr('x', 20)
-      .attr('y', 12)
-      .text(d => d)
-      .style('font-size', '12px')
-      .attr('alignment-baseline', 'middle');
 
     // Cleanup function
     return () => {
@@ -185,9 +166,9 @@ const BubbleChart = () => {
   }
 
   return (
-    <div className="flex flex-col items-center p-8">
-      <h1 className="text-3xl font-bold mb-8">Company Bubble Chart</h1>
-      <div className="w-full max-w-6xl h-[800px] border rounded-lg shadow-lg overflow-hidden">
+    <div className="flex flex-col items-center p-4 w-full" style={{ height: 'calc(100vh - 80px)' }}>
+      <h1 className="text-3xl font-bold mb-4">Company Bubble Chart</h1>
+      <div className="w-full h-full border rounded-lg shadow-lg overflow-hidden">
         <svg ref={svgRef} className="w-full h-full" />
       </div>
       
@@ -201,12 +182,12 @@ const BubbleChart = () => {
             transform: 'translateY(-50%)'
           }}
         >
-          <div className="flex items-center gap-3 mb-2">
+          <div className="flex items-start gap-3 mb-2">
             {tooltip.company.logo && (
               <img 
                 src={tooltip.company.logo} 
                 alt={`${tooltip.company.name} logo`} 
-                className="w-12 h-12 object-contain"
+                className="w-12 h-12 object-contain mt-1"
                 onError={(e) => {
                   (e.target as HTMLImageElement).style.display = 'none';
                 }}
@@ -215,6 +196,9 @@ const BubbleChart = () => {
             <div>
               <h3 className="font-bold text-lg">{tooltip.company.name}</h3>
               <p className="text-sm text-gray-600">{tooltip.company.industry} • {tooltip.company.country}</p>
+              <p className="text-sm text-gray-500 mt-1">
+                <span className="font-medium">Sub-Industry:</span> {tooltip.company.subIndustry}
+              </p>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-2 text-sm">
