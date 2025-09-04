@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useMemo, useState } from 'react'
-import Link from 'next/link'
+import { signIn, signOut, useSession } from 'next-auth/react';
 
 type Company = {
   id: number | string
@@ -23,6 +23,8 @@ type Company = {
 }
 
 export default function Collector() {
+  const { data: session, status } = useSession();
+  const isAuthed = status === 'authenticated' && !!session?.user?.email;
   const [companies, setCompanies] = useState<Company[]>([])
   const [loading, setLoading] = useState(false)
   const [opening, setOpening] = useState(false)
@@ -83,12 +85,13 @@ export default function Collector() {
         <div className="w-11/12 mx-auto px-6 py-2">
           <div className="flex items-center justify-between">
             <p className="text-3xl text-gray-700 font-montserrat font-semibold">Collector's Scrapbook</p>
-            <Link 
-              href="/collection" 
-              className="px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-800 bg-white border border-blue-200 rounded-lg hover:bg-blue-50 transition-colors"
-            >
-              My Collection
-            </Link>
+            <div>
+              {isAuthed ? (
+                <button onClick={() => signOut()} className="px-3 py-1.5 rounded bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm">Sign out</button>
+              ) : (
+                <button onClick={() => signIn('google')} className="px-3 py-1.5 rounded bg-blue-600 hover:bg-blue-700 text-white text-sm">Sign in with Google</button>
+              )}
+            </div>
           </div>
         </div>
       </div>
