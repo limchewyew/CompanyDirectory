@@ -165,20 +165,26 @@ export default function Collector() {
 
             {/* Pack Selection */}
             <div className="grid grid-cols-3 gap-3 mb-6">
-              {PACK_TYPES.map((pack) => (
-                <div 
-                  key={pack.id}
-                  onClick={() => setSelectedPack(pack.id as PackType)}
-                  className={`p-3 border rounded-lg cursor-pointer transition-all ${
-                    selectedPack === pack.id 
-                      ? 'border-emerald-500 bg-emerald-50' 
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
-                >
-                  <div className="font-medium text-gray-900">{pack.name}</div>
-                  <div className="text-xs text-gray-500">{pack.description}</div>
-                </div>
-              ))}
+              {PACK_TYPES.map((pack) => {
+                const count = getFilteredCompanies(pack.id as PackType).length;
+                return (
+                  <div 
+                    key={pack.id}
+                    onClick={() => setSelectedPack(pack.id as PackType)}
+                    className={`p-3 border rounded-lg cursor-pointer transition-all ${
+                      selectedPack === pack.id 
+                        ? 'border-emerald-500 bg-emerald-50' 
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <div className="font-medium text-gray-900">{pack.name}</div>
+                    <div className="text-xs text-gray-500">{pack.description}</div>
+                    <div className="mt-1 text-xs font-medium text-emerald-600">
+                      {count} available {count === 1 ? 'company' : 'companies'}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
 
             {/* Pack visual */}
