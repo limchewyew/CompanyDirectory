@@ -3,14 +3,42 @@ import { google } from 'googleapis';
 const SPREADSHEET_ID = process.env.SHEETS_SPREADSHEET_ID || '1Be3uWps2Y3DUaIIldVVvhHlThzt__dgw7pdaMb68AxU';
 
 function getAuth() {
-  if (!process.env.GOOGLE_CREDENTIALS) {
-    throw new Error('GOOGLE_CREDENTIALS env not set');
+  let credentials;
+  try {
+    // Handle both stringified JSON and plain environment variables
+    if (process.env.GOOGLE_CREDENTIALS) {
+      credentials = typeof process.env.GOOGLE_CREDENTIALS === 'string' 
+        ? JSON.parse(process.env.GOOGLE_CREDENTIALS)
+        : process.env.GOOGLE_CREDENTIALS;
+    } else {
+      // Fallback to individual env vars if GOOGLE_CREDENTIALS is not set
+      if (!process.env.GOOGLE_PRIVATE_KEY) {
+        throw new Error('Missing required Google Auth environment variables');
+      }
+      
+      credentials = {
+        type: 'service_account',
+        project_id: process.env.GOOGLE_PROJECT_ID,
+        private_key_id: process.env.GOOGLE_PRIVATE_KEY_ID,
+        private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+        client_email: process.env.GOOGLE_CLIENT_EMAIL,
+        client_id: process.env.GOOGLE_CLIENT_ID,
+        auth_uri: 'https://accounts.google.com/o/oauth2/auth',
+        token_uri: 'https://oauth2.googleapis.com/token',
+        auth_provider_x509_cert_url: 'https://www.googleapis.com/oauth2/v1/certs',
+        client_x509_cert_url: process.env.GOOGLE_CLIENT_CERT_URL,
+        universe_domain: 'googleapis.com'
+      };
+    }
+    
+    return new google.auth.GoogleAuth({
+      credentials,
+      scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+    });
+  } catch (error) {
+    console.error('Error initializing Google Auth:', error);
+    throw new Error('Failed to initialize Google Auth. Please check your environment variables.');
   }
-  const credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS);
-  return new google.auth.GoogleAuth({
-    credentials,
-    scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-  });
 }
 
 export async function getSheets() {
