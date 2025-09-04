@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useEffect, useMemo, useState } from 'react'
+import Link from 'next/link'
 
 type Company = {
   id: number | string
@@ -82,7 +83,12 @@ export default function Collector() {
         <div className="w-11/12 mx-auto px-6 py-2">
           <div className="flex items-center justify-between">
             <p className="text-3xl text-gray-700 font-montserrat font-semibold">Collector's Scrapbook</p>
-            <div />
+            <Link 
+              href="/collection" 
+              className="px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-800 bg-white border border-blue-200 rounded-lg hover:bg-blue-50 transition-colors"
+            >
+              My Collection
+            </Link>
           </div>
         </div>
       </div>
@@ -225,5 +231,3 @@ function CompanyCard({ company }: { company: Company }) {
     </div>
   )
 }
-
-
