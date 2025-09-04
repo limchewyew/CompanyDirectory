@@ -153,12 +153,11 @@ export default function Collector() {
                 </button>
               )}
               {status !== 'authenticated' && (
-                <button
-                  onClick={() => signIn('google')}
-                  className="flex items-center space-x-2 px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                <button 
+                  onClick={() => signIn('google')} 
+                  className="px-3 py-1.5 rounded bg-blue-600 hover:bg-blue-700 text-white text-sm"
                 >
-                  <Lock size={18} />
-                  <span>Sign In to Save</span>
+                  Sign in with Google
                 </button>
               )}
             </div>
@@ -189,10 +188,9 @@ export default function Collector() {
                     </button>
                     <button
                       onClick={() => signIn('google')}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+                      className="px-3 py-1.5 rounded bg-blue-600 hover:bg-blue-700 text-white text-sm"
                     >
-                      <span>Sign In with Google</span>
-                      <ArrowRight size={16} />
+                      Sign in with Google
                     </button>
                   </div>
                 </div>
@@ -264,10 +262,9 @@ export default function Collector() {
                   <p className="text-white font-medium mb-3">Sign in to save this company to your collection</p>
                   <button
                     onClick={() => signIn('google')}
-                    className="px-4 py-2 bg-white text-blue-600 rounded-lg hover:bg-gray-100 transition-colors flex items-center space-x-2"
+                    className="px-3 py-1.5 rounded bg-blue-600 hover:bg-blue-700 text-white text-sm"
                   >
-                    <span>Sign In with Google</span>
-                    <ArrowRight size={16} />
+                    Sign in with Google
                   </button>
                 </div>
               )}
