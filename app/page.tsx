@@ -125,13 +125,50 @@ export default function Home() {
   // Unique filter options
   const countryOptions = Array.from(new Set((companies ?? []).map(c => c.country).filter(Boolean)));
   const industryOptions = Array.from(new Set((companies ?? []).map(c => c.industry).filter(Boolean)));
-  const subIndustryOptions = Array.from(new Set((companies ?? []).map(c => c.subIndustry).filter(Boolean)));
+  
+  // Get sub-industries based on selected industries, or all if no industry selected
+  const getFilteredSubIndustries = () => {
+    if (industryFilter.length === 0) {
+      return Array.from(new Set((companies ?? []).map(c => c.subIndustry).filter(Boolean)));
+    }
+    return Array.from(new Set(
+      companies
+        .filter(company => industryFilter.includes(company.industry))
+        .map(company => company.subIndustry)
+        .filter(Boolean)
+    ));
+  };
+  
+  const subIndustryOptions = getFilteredSubIndustries();
   const companyTypeOptions = Array.from(new Set((companies ?? []).map(c => c.companyType).filter(Boolean)));
+
+  // Update sub-industry filter when industry filter changes
+  useEffect(() => {
+    // Clear sub-industry filter if no industries are selected
+    if (industryFilter.length === 0) {
+      setSubIndustryFilter([]);
+      return;
+    }
+    
+    // Filter out any sub-industries that are no longer valid for the selected industries
+    const validSubIndustries = subIndustryFilter.filter(subInd => 
+      companies.some(company => 
+        industryFilter.includes(company.industry) && 
+        company.subIndustry === subInd
+      )
+    );
+    
+    if (validSubIndustries.length !== subIndustryFilter.length) {
+      setSubIndustryFilter(validSubIndustries);
+    }
+  }, [industryFilter, companies]);
 
   // Filtered options for dropdowns
   const filteredCountryOptions = countryOptions.filter(option => option.toLowerCase().includes(countrySearch.toLowerCase())).sort((a, b) => a.localeCompare(b));
   const filteredIndustryOptions = industryOptions.filter(option => option.toLowerCase().includes(industrySearch.toLowerCase())).sort((a, b) => a.localeCompare(b));
-  const filteredSubIndustryOptions = subIndustryOptions.filter(option => option.toLowerCase().includes(subIndustrySearch.toLowerCase())).sort((a, b) => a.localeCompare(b));
+  const filteredSubIndustryOptions = subIndustryOptions
+    .filter(option => option.toLowerCase().includes(subIndustrySearch.toLowerCase()))
+    .sort((a, b) => a.localeCompare(b));
   const filteredCompanyTypeOptions = companyTypeOptions.filter(option => option.toLowerCase().includes(companyTypeSearch.toLowerCase())).sort((a, b) => a.localeCompare(b));
 
   useEffect(() => {
@@ -682,31 +719,31 @@ export default function Home() {
                   >
                     Number of Employees {sortBy === 'employees' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
                   </th>
-                  <th className="px-4 py-3 w-24 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none" onClick={() => {
+                  <th className="px-4 py-2 w-24 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none" onClick={() => {
                     setSortBy('history');
                     setSortOrder(sortBy === 'history' && sortOrder === 'asc' ? 'desc' : 'asc');
                   }}>
                     History {sortBy === 'history' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
                   </th>
-                  <th className="px-4 py-3 w-24 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none" onClick={() => {
+                  <th className="px-4 py-2 w-24 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none" onClick={() => {
                     setSortBy('brandAwareness');
                     setSortOrder(sortBy === 'brandAwareness' && sortOrder === 'asc' ? 'desc' : 'asc');
                   }}>
                     Brand Awareness {sortBy === 'brandAwareness' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
                   </th>
-                  <th className="px-4 py-3 w-24 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none" onClick={() => {
+                  <th className="px-4 py-2 w-24 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none" onClick={() => {
                     setSortBy('moat');
                     setSortOrder(sortBy === 'moat' && sortOrder === 'asc' ? 'desc' : 'asc');
                   }}>
                     Moat {sortBy === 'moat' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
                   </th>
-                  <th className="px-4 py-3 w-24 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none" onClick={() => {
+                  <th className="px-4 py-2 w-24 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none" onClick={() => {
                     setSortBy('size');
                     setSortOrder(sortBy === 'size' && sortOrder === 'asc' ? 'desc' : 'asc');
                   }}>
                     Size {sortBy === 'size' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}
                   </th>
-                  <th className="px-4 py-3 w-24 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none" onClick={() => {
+                  <th className="px-4 py-2 w-24 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none" onClick={() => {
                     setSortBy('innovation');
                     setSortOrder(sortBy === 'innovation' && sortOrder === 'asc' ? 'desc' : 'asc');
                   }}>
