@@ -197,53 +197,6 @@ export async function removeItemFromList(listId: string, companyId: string, owne
   });
 }
 
-// UNLOCKED COMPANIES (for scrapbook)
-export async function getUnlockedCompanies(userEmail: string): Promise<string[]> {
-  const sheets = await getSheets();
-  const tab = 'UnlockedCompanies';
-  
-  try {
-    await ensureHeader(tab, ['id', 'userEmail', 'companyId', 'unlockedAt']);
-    const res = await sheets.spreadsheets.values.get({
-      spreadsheetId: SPREADSHEET_ID,
-      range: `${tab}!A2:D`,
-    });
-    
-    const rows = res.data.values || [];
-    return rows
-      .filter((row) => row[1]?.toLowerCase() === userEmail.toLowerCase())
-      .map((row) => row[2]); // Return array of company IDs
-  } catch (error) {
-    if ((error as any).code === 400) {
-      // Sheet doesn't exist yet, return empty array
-      return [];
-    }
-    throw error;
-  }
-}
-
-export async function unlockCompany(userEmail: string, companyId: string) {
-  const sheets = await getSheets();
-  const tab = 'UnlockedCompanies';
-  
-  // First check if already unlocked
-  const unlocked = await getUnlockedCompanies(userEmail);
-  if (unlocked.some(id => id === companyId)) {
-    return; // Already unlocked
-  }
-  
-  // Add to unlocked companies
-  await sheets.spreadsheets.values.append({
-    spreadsheetId: SPREADSHEET_ID,
-    range: `${tab}!A1`,
-    valueInputOption: 'RAW',
-    insertDataOption: 'INSERT_ROWS',
-    requestBody: {
-      values: [[genId('unlock'), userEmail, companyId, nowIso()]]
-    },
-  });
-}
-
 // Aggregate counts of items per list for faster list index display
 export async function getItemCountsByList(): Promise<Record<string, number>> {
   await ensureHeader('ListItems', ['id', 'listId', 'companyId', 'createdAt']);
