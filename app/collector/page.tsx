@@ -25,9 +25,9 @@ type Company = {
 type PackType = 'normal' | 'pioneers' | 'juggernauts';
 
 const PACK_TYPES = [
-  { id: 'normal', name: 'Standard Pack', description: 'A mix of all companies', price: 'Free' },
-  { id: 'pioneers', name: 'Pioneers Pack', description: 'Companies founded in 1900 or earlier', price: '100 Coins' },
-  { id: 'juggernauts', name: 'Juggernauts Pack', description: 'Top-rated companies (80+ score)', price: '200 Coins' },
+  { id: 'normal', name: 'Standard Pack', description: 'A mix of all companies'},
+  { id: 'pioneers', name: 'Pioneers Pack', description: 'Companies founded in 1900 or earlier'},
+  { id: 'juggernauts', name: 'Juggernauts Pack', description: 'Top-rated companies (80+ score)'},
 ] as const;
 
 export default function Collector() {
@@ -177,7 +177,6 @@ export default function Collector() {
                 >
                   <div className="font-medium text-gray-900">{pack.name}</div>
                   <div className="text-xs text-gray-500">{pack.description}</div>
-                  <div className="mt-1 text-xs font-medium text-emerald-600">{pack.price}</div>
                 </div>
               ))}
             </div>
