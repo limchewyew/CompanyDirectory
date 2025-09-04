@@ -1,6 +1,9 @@
 'use client'
 
+import { useSession, signIn } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import React, { useEffect, useMemo, useState } from 'react'
+import { Lock, ArrowRight, BookOpen } from 'lucide-react'
 
 type Company = {
   id: number | string
@@ -24,9 +27,13 @@ type Company = {
 export default function Collector() {
   const [companies, setCompanies] = useState<Company[]>([])
   const [loading, setLoading] = useState(false)
-  const [opening, setOpening] = useState(false)
-  const [revealed, setRevealed] = useState(false)
-  const [selected, setSelected] = useState<Company | null>(null)
+  const [opening, setOpening] = useState(false);
+  const [revealed, setRevealed] = useState(false);
+  const [selected, setSelected] = useState<Company | null>(null);
+  const [unlockedCompanies, setUnlockedCompanies] = useState<string[]>([]);
+  const [showSignInPrompt, setShowSignInPrompt] = useState(false);
+  const { data: session, status } = useSession();
+  const router = useRouter();
 
   useEffect(() => {
     let cancelled = false
@@ -53,21 +60,74 @@ export default function Collector() {
     return arr[i]
   }
 
+  useEffect(() => {
+    if (status === 'authenticated') {
+      fetchUnlockedCompanies();
+    }
+  }, [status]);
+
+  const fetchUnlockedCompanies = async () => {
+    try {
+      const response = await fetch('/api/unlock');
+      if (response.ok) {
+        const data = await response.json();
+        setUnlockedCompanies(data.unlockedCompanies || []);
+      }
+    } catch (error) {
+      console.error('Error fetching unlocked companies:', error);
+    }
+  };
+
   async function handleOpenPack() {
-    if (opening) return
-    setRevealed(false)
-    setSelected(null)
-    setOpening(true)
-    // Simple opening animation timeline
-    await new Promise(r => setTimeout(r, 900))
-    const pick = randPick(companies)
-    setSelected(pick)
-    await new Promise(r => setTimeout(r, 250))
-    setRevealed(true)
-    setOpening(false)
+    if (opening) return;
+    
+    if (!session) {
+      setShowSignInPrompt(true);
+      return;
+    }
+    
+    setRevealed(false);
+    setSelected(null);
+    setOpening(true);
+    
+    try {
+      // Simple opening animation timeline
+      await new Promise(r => setTimeout(r, 900));
+      const pick = randPick(companies);
+      setSelected(pick);
+      
+      // Add to unlocked companies if not already unlocked
+      if (pick && status === 'authenticated') {
+        try {
+          await fetch('/api/unlock', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ companyId: pick.id }),
+          });
+          setUnlockedCompanies(prev => [...prev, String(pick.id)]);
+        } catch (error) {
+          console.error('Error unlocking company:', error);
+        }
+      }
+      
+      await new Promise(r => setTimeout(r, 250));
+      setRevealed(true);
+    } finally {
+      setOpening(false);
+    }
   }
 
   const canOpen = useMemo(() => !loading && companies.length > 0 && !opening, [loading, companies.length, opening])
+
+  const handleViewScrapbook = () => {
+    if (status === 'authenticated') {
+      router.push('/scrapbook');
+    } else {
+      signIn('google');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -82,7 +142,26 @@ export default function Collector() {
         <div className="w-11/12 mx-auto px-6 py-2">
           <div className="flex items-center justify-between">
             <p className="text-3xl text-gray-700 font-montserrat font-semibold">Collector's Scrapbook</p>
-            <div />
+            <div className="flex items-center space-x-4">
+              {status === 'authenticated' && (
+                <button
+                  onClick={() => router.push('/scrapbook')}
+                  className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  <BookOpen size={18} />
+                  <span>View My Scrapbook</span>
+                </button>
+              )}
+              {status !== 'authenticated' && (
+                <button
+                  onClick={() => signIn('google')}
+                  className="flex items-center space-x-2 px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  <Lock size={18} />
+                  <span>Sign In to Save</span>
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -96,14 +175,46 @@ export default function Collector() {
                 <h2 className="text-xl font-semibold text-gray-800">Pack Opening Simulator</h2>
                 <p className="text-sm text-gray-500">Open a pack to reveal a random company card.</p>
               </div>
+              {showSignInPrompt && !session && (
+                <div className="absolute inset-0 bg-black bg-opacity-70 flex flex-col items-center justify-center p-6 rounded-2xl z-10">
+                  <Lock className="h-10 w-10 text-white mb-4" />
+                  <h3 className="text-xl font-semibold text-white mb-2">Sign In Required</h3>
+                  <p className="text-gray-200 text-center mb-6">Sign in to unlock and save companies to your scrapbook collection.</p>
+                  <div className="flex space-x-4">
+                    <button
+                      onClick={() => setShowSignInPrompt(false)}
+                      className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                    >
+                      Maybe Later
+                    </button>
+                    <button
+                      onClick={() => signIn('google')}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+                    >
+                      <span>Sign In with Google</span>
+                      <ArrowRight size={16} />
+                    </button>
+                  </div>
+                </div>
+              )}
               <button
                 onClick={handleOpenPack}
                 disabled={!canOpen}
-                className={`px-4 py-2 rounded-lg text-white text-sm font-medium transition-colors ${
-                  canOpen ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-gray-300 cursor-not-allowed'
+                className={`px-6 py-3 rounded-full font-medium text-white transition-all duration-300 transform relative overflow-hidden ${
+                  canOpen ? 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 hover:shadow-lg hover:scale-105' : 'bg-gray-300 cursor-not-allowed'
                 }`}
               >
-                {opening ? 'Opening…' : 'Open Pack'}
+                {opening ? (
+                  <span className="flex items-center justify-center">
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Opening...
+                  </span>
+                ) : (
+                  <span>Open Pack</span>
+                )}
               </button>
             </div>
 
@@ -142,7 +253,25 @@ export default function Collector() {
                 <div className="text-sm">Your card will appear here.</div>
               </div>
             ) : (
-              <CompanyCard company={selected} />
+              <div className="relative">
+              <CompanyCard 
+                company={selected} 
+                isUnlocked={status === 'authenticated' && unlockedCompanies.includes(String(selected.id))}
+              />
+              {selected && status === 'unauthenticated' && (
+                <div className="absolute inset-0 bg-black bg-opacity-60 rounded-xl flex flex-col items-center justify-center p-4 text-center">
+                  <Lock className="h-8 w-8 text-white mb-2" />
+                  <p className="text-white font-medium mb-3">Sign in to save this company to your collection</p>
+                  <button
+                    onClick={() => signIn('google')}
+                    className="px-4 py-2 bg-white text-blue-600 rounded-lg hover:bg-gray-100 transition-colors flex items-center space-x-2"
+                  >
+                    <span>Sign In with Google</span>
+                    <ArrowRight size={16} />
+                  </button>
+                </div>
+              )}
+            </div>
             )}
           </div>
         </div>
@@ -160,14 +289,22 @@ function StatPill({ label, value }: { label: string; value: number | string | un
   )
 }
 
-function CompanyCard({ company }: { company: Company }) {
+function CompanyCard({ company, isUnlocked = true }: { company: Company; isUnlocked?: boolean }) {
   return (
     <div className="w-full max-w-md">
       {/* Card wrapper */}
-      <div className="relative">
+      <div className={`relative ${!isUnlocked ? 'opacity-70' : ''}`}>
         {/* subtle border gradient */}
         <div className="absolute -inset-[1px] rounded-2xl bg-gradient-to-br from-gray-200 via-gray-100 to-gray-200" aria-hidden />
         <div className="relative rounded-2xl bg-white p-6 shadow-lg">
+          {!isUnlocked && (
+            <div className="absolute inset-0 bg-black bg-opacity-30 rounded-2xl flex items-center justify-center z-10">
+              <div className="bg-black bg-opacity-70 text-white px-4 py-2 rounded-full flex items-center space-x-2">
+                <Lock size={16} />
+                <span className="text-sm font-medium">Locked</span>
+              </div>
+            </div>
+          )}
           <div className="flex items-start gap-4">
             {/* Logo */}
             {company.logo ? (

@@ -155,22 +155,9 @@ export async function deleteList(id: string, ownerEmail: string) {
 export async function getItemsForList(listId: string) {
   await ensureHeader('ListItems', ['id', 'listId', 'companyId', 'createdAt']);
   const sheets = await getSheets();
-  
-  // Use query to filter data on the server side
-  const res = await sheets.spreadsheets.values.batchGet({
-    spreadsheetId: SPREADSHEET_ID,
-    ranges: ['ListItems!A2:D'],
-  });
-  
-  const rows: string[][] = res.data.valueRanges?.[0]?.values || [];
-  return rows
-    .filter(r => r.length >= 4 && r[1] === listId) // Ensure row has all required fields and matches listId
-    .map(r => ({
-      id: r[0],
-      listId: r[1],
-      companyId: r[2],
-      createdAt: r[3]
-    }));
+  const res = await sheets.spreadsheets.values.get({ spreadsheetId: SPREADSHEET_ID, range: `ListItems!A2:D` });
+  const rows: string[][] = res.data.values || [];
+  return rows.filter(r => r[1] === listId).map(r => ({ id: r[0], listId: r[1], companyId: r[2], createdAt: r[3] }));
 }
 
 export async function addItemToList(listId: string, companyId: string, ownerEmail: string) {
@@ -207,6 +194,53 @@ export async function removeItemFromList(listId: string, companyId: string, owne
     range: `ListItems!A${rowNumber}:D${rowNumber}`,
     valueInputOption: 'RAW',
     requestBody: { values: [['', '', '', '']] },
+  });
+}
+
+// UNLOCKED COMPANIES (for scrapbook)
+export async function getUnlockedCompanies(userEmail: string): Promise<string[]> {
+  const sheets = await getSheets();
+  const tab = 'UnlockedCompanies';
+  
+  try {
+    await ensureHeader(tab, ['id', 'userEmail', 'companyId', 'unlockedAt']);
+    const res = await sheets.spreadsheets.values.get({
+      spreadsheetId: SPREADSHEET_ID,
+      range: `${tab}!A2:D`,
+    });
+    
+    const rows = res.data.values || [];
+    return rows
+      .filter((row) => row[1]?.toLowerCase() === userEmail.toLowerCase())
+      .map((row) => row[2]); // Return array of company IDs
+  } catch (error) {
+    if ((error as any).code === 400) {
+      // Sheet doesn't exist yet, return empty array
+      return [];
+    }
+    throw error;
+  }
+}
+
+export async function unlockCompany(userEmail: string, companyId: string) {
+  const sheets = await getSheets();
+  const tab = 'UnlockedCompanies';
+  
+  // First check if already unlocked
+  const unlocked = await getUnlockedCompanies(userEmail);
+  if (unlocked.some(id => id === companyId)) {
+    return; // Already unlocked
+  }
+  
+  // Add to unlocked companies
+  await sheets.spreadsheets.values.append({
+    spreadsheetId: SPREADSHEET_ID,
+    range: `${tab}!A1`,
+    valueInputOption: 'RAW',
+    insertDataOption: 'INSERT_ROWS',
+    requestBody: {
+      values: [[genId('unlock'), userEmail, companyId, nowIso()]]
+    },
   });
 }
 

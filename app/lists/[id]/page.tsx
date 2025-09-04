@@ -7,33 +7,9 @@ import RemoveItemButton from '@/components/RemoveItemButton';
 export const dynamic = 'force-dynamic';
 
 async function getList(id: string) {
-  try {
-    // Fetch list details
-    const listRes = await fetch(`${process.env.NEXTAUTH_URL || ''}/api/lists/${id}`, { 
-      cache: 'no-store',
-      next: { tags: [`list-${id}`] } // Add cache tag for revalidation
-    });
-    if (!listRes.ok) return null;
-    
-    const list = await listRes.json();
-    
-    // Fetch list items separately to ensure we get all of them
-    const itemsRes = await fetch(`${process.env.NEXTAUTH_URL || ''}/api/lists/${id}/items`, { 
-      cache: 'no-store',
-      next: { tags: [`list-items-${id}`] } // Add cache tag for revalidation
-    });
-    
-    if (itemsRes.ok) {
-      list.items = await itemsRes.json();
-    } else {
-      list.items = [];
-    }
-    
-    return list;
-  } catch (error) {
-    console.error('Error fetching list:', error);
-    return null;
-  }
+  const res = await fetch(`${process.env.NEXTAUTH_URL || ''}/api/lists/${id}`, { cache: 'no-store' });
+  if (!res.ok) return null;
+  return res.json();
 }
 
 async function getCompanies() {
