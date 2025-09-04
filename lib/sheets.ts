@@ -155,9 +155,22 @@ export async function deleteList(id: string, ownerEmail: string) {
 export async function getItemsForList(listId: string) {
   await ensureHeader('ListItems', ['id', 'listId', 'companyId', 'createdAt']);
   const sheets = await getSheets();
-  const res = await sheets.spreadsheets.values.get({ spreadsheetId: SPREADSHEET_ID, range: `ListItems!A2:D` });
-  const rows: string[][] = res.data.values || [];
-  return rows.filter(r => r[1] === listId).map(r => ({ id: r[0], listId: r[1], companyId: r[2], createdAt: r[3] }));
+  
+  // Use query to filter data on the server side
+  const res = await sheets.spreadsheets.values.batchGet({
+    spreadsheetId: SPREADSHEET_ID,
+    ranges: ['ListItems!A2:D'],
+  });
+  
+  const rows: string[][] = res.data.valueRanges?.[0]?.values || [];
+  return rows
+    .filter(r => r.length >= 4 && r[1] === listId) // Ensure row has all required fields and matches listId
+    .map(r => ({
+      id: r[0],
+      listId: r[1],
+      companyId: r[2],
+      createdAt: r[3]
+    }));
 }
 
 export async function addItemToList(listId: string, companyId: string, ownerEmail: string) {
