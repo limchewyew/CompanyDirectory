@@ -56,6 +56,7 @@ interface Company {
   total: number
   website: string
   logo: string
+  companyType: string
 }
 
 export default function Analytics() {
@@ -66,6 +67,7 @@ export default function Analytics() {
   const [countryFilter, setCountryFilter] = useState<string[]>([])
   const [industryFilter, setIndustryFilter] = useState<string[]>([])
   const [subIndustryFilter, setSubIndustryFilter] = useState<string[]>([])
+  const [companyTypeFilter, setCompanyTypeFilter] = useState<string[]>([])
 
   // Total min/max filter
   const [totalMin, setTotalMin] = useState<string>('')
@@ -80,11 +82,13 @@ export default function Analytics() {
   const [openCountry, setOpenCountry] = useState(false)
   const [openIndustry, setOpenIndustry] = useState(false)
   const [openSubIndustry, setOpenSubIndustry] = useState(false)
+  const [openCompanyType, setOpenCompanyType] = useState(false)
 
   // Filter search states
   const [countrySearch, setCountrySearch] = useState('')
   const [industrySearch, setIndustrySearch] = useState('')
   const [subIndustrySearch, setSubIndustrySearch] = useState('')
+  const [companyTypeSearch, setCompanyTypeSearch] = useState('')
 
   // Filter bar visibility
   const [showFilterBar, setShowFilterBar] = useState(false)
@@ -93,11 +97,13 @@ export default function Analytics() {
   const countryDropdownRef = useRef<HTMLDivElement>(null)
   const industryDropdownRef = useRef<HTMLDivElement>(null)
   const subIndustryDropdownRef = useRef<HTMLDivElement>(null)
+  const companyTypeDropdownRef = useRef<HTMLDivElement>(null)
 
   // Add click-outside handlers
   useClickOutside(countryDropdownRef, () => setOpenCountry(false))
   useClickOutside(industryDropdownRef, () => setOpenIndustry(false))
   useClickOutside(subIndustryDropdownRef, () => setOpenSubIndustry(false))
+  useClickOutside(companyTypeDropdownRef, () => setOpenCompanyType(false))
 
   useEffect(() => {
     fetch('/api/companies')
@@ -117,11 +123,13 @@ export default function Analytics() {
   const countryOptions = Array.from(new Set((companies ?? []).map(c => c.country).filter(Boolean)))
   const industryOptions = Array.from(new Set((companies ?? []).map(c => c.industry).filter(Boolean)))
   const subIndustryOptions = Array.from(new Set((companies ?? []).map(c => c.subIndustry).filter(Boolean)))
+  const companyTypeOptions = Array.from(new Set((companies ?? []).map(c => c.companyType).filter(Boolean)))
 
   // Filtered options for dropdowns
   const filteredCountryOptions = countryOptions.filter(option => option.toLowerCase().includes(countrySearch.toLowerCase())).sort((a, b) => a.localeCompare(b))
   const filteredIndustryOptions = industryOptions.filter(option => option.toLowerCase().includes(industrySearch.toLowerCase())).sort((a, b) => a.localeCompare(b))
   const filteredSubIndustryOptions = subIndustryOptions.filter(option => option.toLowerCase().includes(subIndustrySearch.toLowerCase())).sort((a, b) => a.localeCompare(b))
+  const filteredCompanyTypeOptions = companyTypeOptions.filter(option => option.toLowerCase().includes(companyTypeSearch.toLowerCase())).sort((a, b) => a.localeCompare(b))
 
   // Apply filters to companies
   useEffect(() => {
@@ -129,6 +137,7 @@ export default function Analytics() {
       const matchesCountry = countryFilter.length > 0 ? countryFilter.includes(company.country) : true
       const matchesIndustry = industryFilter.length > 0 ? industryFilter.includes(company.industry) : true
       const matchesSubIndustry = subIndustryFilter.length > 0 ? subIndustryFilter.includes(company.subIndustry) : true
+      const matchesCompanyType = companyTypeFilter.length > 0 ? companyTypeFilter.includes(company.companyType) : true
       const matchesTotalMin = totalMin !== '' ? company.total >= Number(totalMin) : true
       const matchesTotalMax = totalMax !== '' ? company.total <= Number(totalMax) : true
       
@@ -138,12 +147,13 @@ export default function Analytics() {
       const matchesSelectedScoreRange = selectedScoreRange ? 
         (company.total >= selectedScoreRange && company.total < selectedScoreRange + 5) : true
       
-      return matchesCountry && matchesIndustry && matchesSubIndustry && matchesTotalMin && matchesTotalMax &&
-             matchesSelectedIndustry && matchesSelectedCountry && matchesSelectedScoreRange
+      return matchesCountry && matchesIndustry && matchesSubIndustry && matchesCompanyType && 
+             matchesTotalMin && matchesTotalMax && matchesSelectedIndustry && 
+             matchesSelectedCountry && matchesSelectedScoreRange
     })
 
     setFilteredCompanies(filtered)
-  }, [companies, countryFilter, industryFilter, subIndustryFilter, totalMin, totalMax, 
+  }, [companies, countryFilter, industryFilter, subIndustryFilter, companyTypeFilter, totalMin, totalMax, 
       selectedIndustry, selectedCountry, selectedScoreRange])
 
   // Clear all filters handler
@@ -151,9 +161,11 @@ export default function Analytics() {
     setCountryFilter([])
     setIndustryFilter([])
     setSubIndustryFilter([])
+    setCompanyTypeFilter([])
     setCountrySearch('')
     setIndustrySearch('')
     setSubIndustrySearch('')
+    setCompanyTypeSearch('')
     setTotalMin('')
     setTotalMax('')
     setSelectedIndustry(null)
@@ -334,7 +346,7 @@ export default function Analytics() {
                   <label className="block font-sans text-xs text-gray-500 mb-1">Country</label>
                   <div
                     className="border border-gray-300 rounded px-2 py-1 text-sm bg-white cursor-pointer flex flex-wrap gap-1 min-h-[36px] items-center"
-                    onClick={() => { setOpenCountry(v => !v); setOpenIndustry(false); setOpenSubIndustry(false); }}
+                    onClick={() => { setOpenCountry(v => !v); setOpenIndustry(false); setOpenSubIndustry(false); setOpenCompanyType(false); }}
                   >
                     {countryFilter.length === 0 && <span className="text-gray-400">All</span>}
                     {countryFilter.map(opt => (
@@ -388,7 +400,7 @@ export default function Analytics() {
                   <label className="block font-sans text-xs text-gray-500 mb-1">Industry</label>
                   <div
                     className="border border-gray-300 rounded px-2 py-1 text-sm bg-white cursor-pointer flex flex-wrap gap-1 min-h-[36px] items-center"
-                    onClick={() => { setOpenIndustry(v => !v); setOpenCountry(false); setOpenSubIndustry(false); }}
+                    onClick={() => { setOpenIndustry(v => !v); setOpenCountry(false); setOpenSubIndustry(false); setOpenCompanyType(false); }}
                   >
                     {industryFilter.length === 0 && <span className="text-gray-400">All</span>}
                     {industryFilter.map(opt => (
@@ -437,12 +449,12 @@ export default function Analytics() {
                     </div>
                   )}
                 </div>
-                {/* Subsector Multi-select */}
+                {/* Sub-Industry Multi-select */}
                 <div className="relative min-w-[150px]" ref={subIndustryDropdownRef}>
-                  <label className="block font-sans text-xs text-gray-500 mb-1">Subsector</label>
+                  <label className="block font-sans text-xs text-gray-500 mb-1">Sub-Industry</label>
                   <div
                     className="border border-gray-300 rounded px-2 py-1 text-sm bg-white cursor-pointer flex flex-wrap gap-1 min-h-[36px] items-center"
-                    onClick={() => { setOpenSubIndustry(v => !v); setOpenCountry(false); setOpenIndustry(false); }}
+                    onClick={() => { setOpenSubIndustry(v => !v); setOpenCountry(false); setOpenIndustry(false); setOpenCompanyType(false); }}
                   >
                     {subIndustryFilter.length === 0 && <span className="text-gray-400">All</span>}
                     {subIndustryFilter.map(opt => (
@@ -482,6 +494,60 @@ export default function Analytics() {
                                 subIndustryFilter.includes(option)
                                   ? subIndustryFilter.filter(f => f !== option)
                                   : [...subIndustryFilter, option]
+                              );
+                            }}
+                          />
+                          {option}
+                        </label>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                {/* Company Type Multi-select */}
+                <div className="relative min-w-[150px]" ref={companyTypeDropdownRef}>
+                  <label className="block font-sans text-xs text-gray-500 mb-1">Company Type</label>
+                  <div
+                    className="border border-gray-300 rounded px-2 py-1 text-sm bg-white cursor-pointer flex flex-wrap gap-1 min-h-[36px] items-center"
+                    onClick={() => { setOpenCompanyType(v => !v); setOpenCountry(false); setOpenIndustry(false); setOpenSubIndustry(false); }}
+                  >
+                    {companyTypeFilter.length === 0 && <span className="text-gray-400">All</span>}
+                    {companyTypeFilter.map(opt => (
+                      <span
+                        key={opt}
+                        className="bg-blue-500 text-white rounded px-2 py-0.5 font-sans text-xs mr-1 mb-1 flex items-center"
+                        onClick={e => {
+                          e.stopPropagation();
+                          setCompanyTypeFilter(companyTypeFilter.filter(c => c !== opt));
+                        }}
+                      >{opt} <span className="ml-1 cursor-pointer">×</span></span>
+                    ))}
+                    <span className="ml-auto text-xs text-gray-400">▼</span>
+                  </div>
+                  {openCompanyType && (
+                    <div className="absolute z-10 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg max-h-64 overflow-y-auto">
+                      <div className="px-3 py-2">
+                        <input
+                          type="text"
+                          className="w-full px-2 py-1 border border-gray-300 rounded focus:outline-none focus:border-blue-400 text-sm"
+                          placeholder="Search company type..."
+                          value={companyTypeSearch}
+                          onChange={e => setCompanyTypeSearch(e.target.value)}
+                        />
+                      </div>
+                      {filteredCompanyTypeOptions.length === 0 && (
+                        <div className="px-3 py-2 text-gray-400 text-sm">No results</div>
+                      )}
+                      {filteredCompanyTypeOptions.map(option => (
+                        <label key={option} className="flex items-center px-3 py-2 cursor-pointer hover:bg-gray-100">
+                          <input
+                            type="checkbox"
+                            className="form-checkbox mr-2"
+                            checked={companyTypeFilter.includes(option)}
+                            onChange={() => {
+                              setCompanyTypeFilter(
+                                companyTypeFilter.includes(option)
+                                  ? companyTypeFilter.filter(f => f !== option)
+                                  : [...companyTypeFilter, option]
                               );
                             }}
                           />
