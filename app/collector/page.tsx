@@ -22,6 +22,14 @@ type Company = {
   description?: string
 }
 
+type PackType = 'normal' | 'pioneers' | 'juggernauts';
+
+const PACK_TYPES = [
+  { id: 'normal', name: 'Standard Pack', description: 'A mix of all companies', price: 'Free' },
+  { id: 'pioneers', name: 'Pioneers Pack', description: 'Companies founded in 1900 or earlier', price: '100 Coins' },
+  { id: 'juggernauts', name: 'Juggernauts Pack', description: 'Top-rated companies (80+ score)', price: '200 Coins' },
+] as const;
+
 export default function Collector() {
   const { data: session, status } = useSession();
   const isAuthed = status === 'authenticated' && !!session?.user?.email;
@@ -29,6 +37,8 @@ export default function Collector() {
   const [loading, setLoading] = useState(false)
   const [opening, setOpening] = useState(false)
   const [revealed, setRevealed] = useState(false)
+  const [selectedPack, setSelectedPack] = useState<PackType>('normal');
+  const [openedCards, setOpenedCards] = useState<Company[]>([]);
   const [selected, setSelected] = useState<Company | null>(null)
 
   useEffect(() => {
@@ -56,21 +66,58 @@ export default function Collector() {
     return arr[i]
   }
 
-  async function handleOpenPack() {
-    if (opening) return
-    setRevealed(false)
-    setSelected(null)
-    setOpening(true)
-    // Simple opening animation timeline
-    await new Promise(r => setTimeout(r, 900))
-    const pick = randPick(companies)
-    setSelected(pick)
-    await new Promise(r => setTimeout(r, 250))
-    setRevealed(true)
-    setOpening(false)
+  function getFilteredCompanies(type: PackType): Company[] {
+    switch (type) {
+      case 'pioneers':
+        return companies.filter(company => 
+          company.yearFounded && Number(company.yearFounded) <= 1900
+        );
+      case 'juggernauts':
+        return companies.filter(company => 
+          company.total && Number(company.total) >= 80
+        );
+      case 'normal':
+      default:
+        return companies;
+    }
   }
 
-  const canOpen = useMemo(() => !loading && companies.length > 0 && !opening, [loading, companies.length, opening])
+  function getRandomCompanies(type: PackType, count: number): Company[] {
+    const filtered = getFilteredCompanies(type);
+    if (filtered.length === 0) return [];
+    
+    const shuffled = [...filtered].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, Math.min(count, shuffled.length));
+  }
+
+  async function handleOpenPack() {
+    if (opening) return;
+    setRevealed(false);
+    setSelected(null);
+    setOpenedCards([]);
+    setOpening(true);
+    
+    // Simple opening animation timeline
+    await new Promise(r => setTimeout(r, 900));
+    
+    // Get 3 random cards based on pack type
+    const cards = getRandomCompanies(selectedPack, 3);
+    setOpenedCards(cards);
+    
+    // Reveal cards one by one
+    for (let i = 0; i < cards.length; i++) {
+      setSelected(cards[i]);
+      if (i === 0) setRevealed(true);
+      await new Promise(r => setTimeout(r, 500));
+    }
+    
+    setOpening(false);
+  }
+
+  const canOpen = useMemo(
+    () => !loading && companies.length > 0 && !opening,
+    [loading, companies.length, opening]
+  );
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -103,7 +150,7 @@ export default function Collector() {
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h2 className="text-xl font-semibold text-gray-800">Pack Opening Simulator</h2>
-                <p className="text-sm text-gray-500">Open a pack to reveal a random company card.</p>
+                <p className="text-sm text-gray-500">Choose a pack type and open to reveal company cards.</p>
               </div>
               <button
                 onClick={handleOpenPack}
@@ -116,18 +163,44 @@ export default function Collector() {
               </button>
             </div>
 
+            {/* Pack Selection */}
+            <div className="grid grid-cols-3 gap-3 mb-6">
+              {PACK_TYPES.map((pack) => (
+                <div 
+                  key={pack.id}
+                  onClick={() => setSelectedPack(pack.id as PackType)}
+                  className={`p-3 border rounded-lg cursor-pointer transition-all ${
+                    selectedPack === pack.id 
+                      ? 'border-emerald-500 bg-emerald-50' 
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                >
+                  <div className="font-medium text-gray-900">{pack.name}</div>
+                  <div className="text-xs text-gray-500">{pack.description}</div>
+                  <div className="mt-1 text-xs font-medium text-emerald-600">{pack.price}</div>
+                </div>
+              ))}
+            </div>
+
             {/* Pack visual */}
-            <div className="relative h-56 flex items-center justify-center">
+            <div className="relative h-40 flex items-center justify-center">
               <div
-                className={`w-52 h-32 rounded-xl border border-gray-200 bg-gradient-to-br from-gray-50 to-gray-100 shadow-md flex items-center justify-center transition-all duration-700 ease-out ${
+                className={`w-52 h-28 rounded-xl border-2 border-gray-200 bg-gradient-to-br from-gray-50 to-gray-100 shadow-md flex items-center justify-center transition-all duration-700 ease-out ${
                   opening ? 'scale-110 rotate-3 shadow-xl' : ''
                 }`}
               >
                 <div className="text-center">
-                  <div className="text-xs uppercase tracking-wider text-gray-500">Company Pack</div>
-                  <div className="mt-1 text-lg font-semibold text-gray-700">Series A</div>
-                  {/* Shimmer */}
-                  <div className={`mt-3 h-8 w-28 rounded-md bg-gradient-to-r from-gray-200 via-white to-gray-200 bg-[length:200%_100%] ${opening ? 'animate-pulse' : ''}`}></div>
+                  <div className="text-xs uppercase tracking-wider text-gray-500">
+                    {PACK_TYPES.find(p => p.id === selectedPack)?.name || 'Company Pack'}
+                  </div>
+                  <div className="mt-1 text-lg font-semibold text-gray-700">
+                    {opening ? 'Opening...' : 'Ready to Open'}
+                  </div>
+                  {opening && (
+                    <div className="mt-2 text-xs text-gray-500">
+                      Revealing {openedCards.length + 1}/3 cards...
+                    </div>
+                  )}
                 </div>
               </div>
               {/* Glow effect when opening */}
@@ -140,19 +213,31 @@ export default function Collector() {
 
             {/* Helper text */}
             <div className="text-xs text-gray-500 mt-4">
-              {loading ? 'Loading companies…' : companies.length === 0 ? 'No companies available.' : 'Click "Open Pack" to reveal a card.'}
+              {loading 
+                ? 'Loading companies…' 
+                : companies.length === 0 
+                  ? 'No companies available.' 
+                  : `Selected: ${PACK_TYPES.find(p => p.id === selectedPack)?.name}`}
             </div>
           </div>
 
           {/* Reveal Area */}
-          <div className="bg-white p-8 rounded-2xl shadow-xl border border-gray-100 min-h-[22rem] flex items-center justify-center">
-            {!revealed || !selected ? (
-              <div className="text-center text-gray-500">
-                <div className="text-sm">Your card will appear here.</div>
-              </div>
-            ) : (
-              <CompanyCard company={selected} />
-            )}
+          <div className="bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">Your Cards</h3>
+            <div className="space-y-4">
+              {openedCards.length > 0 ? (
+                openedCards.map((card, index) => (
+                  <div key={index} className="border-b border-gray-100 pb-4 last:border-0 last:pb-0">
+                    <CompanyCard company={card} />
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-8 text-gray-400">
+                  <div className="text-sm">Your cards will appear here.</div>
+                  <div className="text-xs mt-1">Open a pack to reveal your cards!</div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
