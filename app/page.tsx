@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useRef } from 'react'
-import { Search, TrendingUp, TrendingDown, Building2, Globe, DollarSign, Star, Filter as FilterIcon, Info } from 'lucide-react'
+import { Search, TrendingUp, TrendingDown, Building2, Globe, DollarSign, Star, Filter as FilterIcon, Info, BarChart3 } from 'lucide-react'
 
 // Add this custom hook for click-outside detection
 const useClickOutside = (ref: React.RefObject<HTMLElement>, callback: () => void) => {
@@ -635,7 +635,7 @@ export default function Home() {
 
       {/* Stats - Compact Header */}
       <div className="w-11/12 mx-auto px-6 py-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           {/* Average Score */}
           <div className="bg-white p-4 rounded border border-gray-200 shadow-xs hover:shadow-sm transition-shadow">
             <div className="flex items-center">
@@ -674,6 +674,21 @@ export default function Home() {
                 <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Countries</p>
                 <p className="text-xl font-semibold text-gray-800">
                   {new Set(filteredCompanies.map(c => c.country)).size}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Industries */}
+          <div className="bg-white p-4 rounded border border-gray-200 shadow-xs hover:shadow-sm transition-shadow">
+            <div className="flex items-center">
+              <div className="h-9 w-9 flex items-center justify-center rounded-md bg-yellow-50">
+                <BarChart3 className="h-4 w-4 text-yellow-600" />
+              </div>
+              <div className="ml-3">
+                <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Industries</p>
+                <p className="text-xl font-semibold text-gray-800">
+                  {new Set(filteredCompanies.map(c => c.industry)).size}
                 </p>
               </div>
             </div>
