@@ -31,60 +31,79 @@ export default async function ListDetailPage({ params }: { params: { id: string 
   const isOwner = !!(ownerEmail && list.ownerEmail && list.ownerEmail.toLowerCase() === ownerEmail.toLowerCase());
 
   return (
-    <div className="w-11/12 mx-auto px-6 py-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="font-semibold text-gray-800">{list.name}</p>
-          <p className="text-xs text-gray-500">Owner: {list.ownerEmail}</p>
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-gray-50 border-b border-gray-100">
+        <div className="px-5 py-3">
+          <h1 className="text-3xl font-medium text-gray-700 tracking-wide ml-1 font-montserrat"> </h1>
         </div>
-        <a href="/lists" className="text-sm text-blue-600 hover:underline">Back to lists</a>
+      </header>
+
+      {/* Title Bar */}
+      <div className="bg-white shadow-sm border-b border-gray-50">
+        <div className="w-11/12 mx-auto px-6 py-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-2xl text-gray-700 font-montserrat font-light tracking-wide">{list.name}</p>
+              <p className="text-xs text-gray-500">Owner: {list.ownerEmail}</p>
+            </div>
+            <a 
+              href="/lists" 
+              className="text-sm text-blue-600 hover:text-blue-800 hover:underline transition-colors"
+            >
+              Back to lists
+            </a>
+          </div>
+        </div>
       </div>
 
-      {isOwner && (
-        <div className="bg-white border rounded p-4 space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="font-semibold text-gray-800">Add a company to this list</div>
-            <DeleteListButton listId={params.id} />
+      <div className="w-11/12 mx-auto px-6 py-6 space-y-6">
+        {isOwner && (
+          <div className="bg-white border rounded p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="font-medium text-gray-800">Add a company to this list</div>
+              <DeleteListButton listId={params.id} />
+            </div>
+            <AddToListForm listId={params.id} />
           </div>
-          <AddToListForm listId={params.id} />
-        </div>
-      )}
+        )}
 
-      <div className="bg-white border rounded">
-        <div className="border-b px-4 py-2 font-semibold">Companies</div>
-        <ul className="divide-y">
-          {(list.items || []).length === 0 ? (
-            <li className="px-4 py-3 text-sm text-gray-500">No companies in this list yet.</li>
-          ) : (
-            list.items.map((it: any) => {
-              const c = companyMap[String(it.companyId)];
-              return (
-                <li key={it.id} className="px-4 py-3 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    {c?.logo ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={c.logo} alt={c?.name || 'logo'} className="w-10 h-10 object-contain bg-white border border-gray-200 rounded-md" />
-                    ) : (
-                      <div className="w-10 h-10 rounded-md bg-gray-100 border border-gray-200" />
-                    )}
-                    <div>
-                      <a href={`/companies/${it.companyId}`} className="font-medium text-blue-700 hover:underline">
-                        {c?.name || `Company`}
-                      </a>
-                      {c?.industry && <div className="text-xs text-gray-500">{c.industry}</div>}
+        <div className="bg-white border rounded">
+          <div className="border-b px-4 py-2 font-semibold">Companies</div>
+          <ul className="divide-y">
+            {(list.items || []).length === 0 ? (
+              <li className="px-4 py-3 text-sm text-gray-500">No companies in this list yet.</li>
+            ) : (
+              list.items.map((it: any) => {
+                const c = companyMap[String(it.companyId)];
+                return (
+                  <li key={it.id} className="px-4 py-3 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      {c?.logo ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={c.logo} alt={c?.name || 'logo'} className="w-10 h-10 object-contain bg-white border border-gray-200 rounded-md" />
+                      ) : (
+                        <div className="w-10 h-10 rounded-md bg-gray-100 border border-gray-200" />
+                      )}
+                      <div>
+                        <a href={`/companies/${it.companyId}`} className="font-medium text-blue-700 hover:underline">
+                          {c?.name || `Company`}
+                        </a>
+                        {c?.industry && <div className="text-xs text-gray-500">{c.industry}</div>}
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <a href={`/companies/${it.companyId}`} className="text-sm text-blue-600 hover:underline">View</a>
-                    {isOwner && (
-                      <RemoveItemButton listId={params.id} companyId={it.companyId} />
-                    )}
-                  </div>
-                </li>
-              );
-            })
-          )}
-        </ul>
+                    <div className="flex items-center gap-3">
+                      <a href={`/companies/${it.companyId}`} className="text-sm text-blue-600 hover:underline">View</a>
+                      {isOwner && (
+                        <RemoveItemButton listId={params.id} companyId={it.companyId} />
+                      )}
+                    </div>
+                  </li>
+                );
+              })
+            )}
+          </ul>
+        </div>
       </div>
     </div>
   );

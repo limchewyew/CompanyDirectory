@@ -49,22 +49,32 @@ export default function ListsPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-gray-100 border-b border-gray-200">
+      <header className="bg-gray-50 border-b border-gray-100">
         <div className="px-5 py-3">
-          <h1 className="text-3xl font-semibold text-gray-700 uppercase tracking-wider ml-1 font-montserrat"> </h1>
+          <h1 className="text-3xl font-medium text-gray-700 tracking-wide ml-1 font-montserrat"> </h1>
         </div>
       </header>
 
       {/* Title Bar */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="w-11/12 mx-auto px-6 py-2">
+      <div className="bg-white shadow-sm border-b border-gray-50">
+        <div className="w-11/12 mx-auto px-6 py-3">
           <div className="flex items-center justify-between">
-            <p className="text-3xl text-gray-700 font-montserrat font-semibold">Lists</p>
+            <p className="text-2xl text-gray-700 font-montserrat font-light tracking-wide">Lists</p>
             <div>
               {isAuthed ? (
-                <button onClick={() => signOut()} className="px-3 py-1.5 rounded bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm">Sign out</button>
+                <button 
+                  onClick={() => signOut()} 
+                  className="px-3 py-1.5 rounded bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm border border-gray-200 transition-colors"
+                >
+                  Sign out
+                </button>
               ) : (
-                <button onClick={() => signIn('google')} className="px-3 py-1.5 rounded bg-blue-600 hover:bg-blue-700 text-white text-sm">Sign in with Google</button>
+                <button 
+                  onClick={() => signIn('google')} 
+                  className="px-3 py-1.5 rounded bg-blue-500 hover:bg-blue-600 text-white text-sm transition-colors"
+                >
+                  Sign in with Google
+                </button>
               )}
             </div>
           </div>
