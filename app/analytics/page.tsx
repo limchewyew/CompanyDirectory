@@ -261,17 +261,17 @@ export default function Analytics() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-gray-100 border-b border-gray-200">
+      <header className="bg-gray-50 border-b border-gray-100">
         <div className="px-5 py-3">
-          <h1 className="text-3xl font-semibold text-gray-700 uppercase tracking-wider ml-1 font-montserrat"> </h1>
+          <h1 className="text-3xl font-medium text-gray-700 tracking-wide ml-1 font-montserrat"> </h1>
         </div>
       </header>
 
       {/* Search Bar */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="w-11/12 mx-auto px-6 py-2">
+      <div className="bg-white shadow-sm border-b border-gray-50">
+        <div className="w-11/12 mx-auto px-6 py-3">
           <div className="flex items-center justify-between">
-            <p className="text-3xl text-gray-700 font-montserrat font-semibold">Analytics</p>
+            <p className="text-2xl text-gray-700 font-montserrat font-light tracking-wide">Analytics</p>
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
                 <button

@@ -55,13 +55,21 @@ export default function CollectionPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-gray-100 border-b border-gray-200">
+      {/* Header */}
+      <header className="bg-gray-50 border-b border-gray-100">
         <div className="px-5 py-3">
-          <h1 className="text-3xl font-semibold text-gray-700 uppercase tracking-wider ml-1 font-montserrat">
-            My Collection
-          </h1>
+          <h1 className="text-3xl font-medium text-gray-700 tracking-wide ml-1 font-montserrat"> </h1>
         </div>
       </header>
+      {/* Search Bar */}
+      <div className="bg-white shadow-sm border-b border-gray-50">
+        <div className="w-11/12 mx-auto px-6 py-3">
+          <div className="flex items-center justify-between">
+            <p className="text-2xl text-gray-700 font-montserrat font-light tracking-wide">My Collection</p>
+            <div />
+          </div>
+        </div>
+      </div>
 
       <main className="container mx-auto p-6">
         {collection.length === 0 ? (
